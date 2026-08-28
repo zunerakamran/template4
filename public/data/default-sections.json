@@ -66,6 +66,7 @@
     "text": "Intime is a design studio founded in London. Nowadays, we've grown and expanded our services, and have become a multinational firm, offering a variety of services and solutions Worldwide.",
     "image_url": "intime-04.jpg",
     "experience_years": "10+",
+    "experience_label": "Years of Experience",
     "gauges": [
       { "value": "50%", "label": "Business strategy growth" },
       { "value": "75%", "label": "Finance valuable ideas" }
