@@ -31,28 +31,31 @@
       }
     ]
   },
-  "Features Carousel": {
-    "eyebrow": "FEATURES",
+  "What we do": {
+    "subheading": "WHAT WE DO",
     "heading": "We are the best agency to improve your deals.",
-    "subheading": "Improve efficiency, provide a better customer experience with modern technology services available around the world. Our skilled staff, combined with decades of experience.",
-    "items": [
+    "text": "Improve efficiency, provide a better customer experience with modern technology services available around the world. Our skilled staff, combined with decades of experience.",
+    "boxes": [
       {
-        "icon": "briefcase",
-        "title": "Business & Strategy",
+        "image_url": "intime-12",
+        "heading": "Business & Strategy",
         "text": "If you're looking for car insurance, we will help you to find the coverage that budget friendly.",
-        "image_url": "intime-12"
+        "button_text": "Read more",
+        "button_url": "#services"
       },
       {
-        "icon": "chart",
-        "title": "Business Planner",
+        "image_url": "intime-06",
+        "heading": "Business Planner",
         "text": "If you're looking for car insurance, we will help you to find the coverage that budget friendly.",
-        "image_url": "intime-06.jpg"
+        "button_text": "Read more",
+        "button_url": "#services"
       },
       {
-        "icon": "lightbulb",
-        "title": "Business Intelligence",
+        "image_url": "intime-15",
+        "heading": "Business Intelligence",
         "text": "If you're looking for car insurance, we will help you to find the coverage that budget friendly.",
-        "image_url": "intime-15"
+        "button_text": "Read more",
+        "button_url": "#services"
       }
     ]
   },

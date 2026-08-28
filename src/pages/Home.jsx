@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header/Header';
 import HeroSlider from '../components/Home/HeroSlider';
-import FeaturesCarousel from '../components/Home/FeaturesCarousel';
+import WhatWeDo from '../components/Home/WhatWeDo';
 import AboutSection from '../components/Home/AboutSection';
 import CompanyHistory from '../components/Home/CompanyHistory';
 import FeaturedServices from '../components/Home/FeaturedServices';
@@ -61,6 +61,8 @@ const Home = () => {
   const targetSection = (searchParams.get('section') || '').toLowerCase().replace(/[^a-z0-9]/g, '');
   const heroData = sectionsMap['heroslider'] || sectionsMap['hero'];
   const heroReady = contentReady || Boolean(heroData);
+  const whatWeDoData = sectionsMap['whatwedo'] || sectionsMap['featurescarousel'] || sectionsMap['features'];
+  const isWhatWeDoPreview = targetSection === 'whatwedo' || targetSection === 'featurescarousel' || targetSection === 'features';
 
   useEffect(() => {
     // ── Skip API fetch in iframe preview mode ─────────────────────────────────
@@ -119,7 +121,7 @@ const Home = () => {
     return (
       <div className="bg-white min-h-screen p-2 font-sans selection:bg-[#C8102E] selection:text-white">
         { (targetSection.includes('hero') || targetSection.includes('slider')) && <HeroSlider data={heroData} ready={heroReady} /> }
-        { (targetSection.includes('features') || targetSection.includes('carousel')) && <FeaturesCarousel data={sectionsMap['featurescarousel'] || sectionsMap['features']} /> }
+        { isWhatWeDoPreview && <WhatWeDo data={whatWeDoData} /> }
         { targetSection.includes('about') && <AboutSection data={sectionsMap['aboutsection'] || sectionsMap['about']} /> }
         { (targetSection.includes('history') || targetSection.includes('company')) && <CompanyHistory data={sectionsMap['companyhistory'] || sectionsMap['history']} /> }
         { (targetSection.includes('service') || targetSection.includes('featuredservices')) && <FeaturedServices data={sectionsMap['featuredservices'] || sectionsMap['services']} /> }
@@ -140,7 +142,7 @@ const Home = () => {
       <Header data={sectionsMap['header']} />
       <main>
         <HeroSlider data={heroData} ready={heroReady} />
-        <FeaturesCarousel data={sectionsMap['featurescarousel'] || sectionsMap['features']} />
+        <WhatWeDo data={whatWeDoData} />
         <AboutSection data={sectionsMap['aboutsection'] || sectionsMap['about']} />
         <CompanyHistory data={sectionsMap['companyhistory'] || sectionsMap['history']} />
         <FeaturedServices data={sectionsMap['featuredservices'] || sectionsMap['services']} />
