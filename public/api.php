@@ -24,6 +24,7 @@ $DB_PASS = "YOUR_CPANEL_DB_PASS";
 $dataDir  = __DIR__ . '/data';
 $dataFile = $dataDir . '/content.json';
 $seedFile = $dataDir . '/default-sections.json';
+$dbConfigFile = $dataDir . '/cpanel-db.php';
 
 function jsonBody($raw) {
     if (!$raw) return [];
@@ -104,8 +105,58 @@ function loadSeedSections() {
     return is_array($raw) ? $raw : [];
 }
 
+function loadSavedDbConfig() {
+    global $dbConfigFile;
+    if (!file_exists($dbConfigFile)) return [];
+    $cfg = include $dbConfigFile;
+    return is_array($cfg) ? $cfg : [];
+}
+
+function persistDbConfig($cfg) {
+    global $dataDir, $dbConfigFile;
+    if (!file_exists($dataDir)) mkdir($dataDir, 0755, true);
+    $export = var_export([
+        'DB_HOST' => $cfg['DB_HOST'] ?? 'localhost',
+        'DB_NAME' => $cfg['DB_NAME'] ?? '',
+        'DB_USER' => $cfg['DB_USER'] ?? '',
+        'DB_PASS' => $cfg['DB_PASS'] ?? '',
+        'SECRET_API_KEY' => $cfg['SECRET_API_KEY'] ?? '',
+    ], true);
+    file_put_contents($dbConfigFile, "<?php\nreturn {$export};\n");
+}
+
+function isPlaceholderDb($name, $user) {
+    return empty($name) || empty($user) || $name === 'YOUR_CPANEL_DB_NAME' || $user === 'YOUR_CPANEL_DB_USER';
+}
+
+function resolveDbConfig($input = null) {
+    global $DB_HOST, $DB_NAME, $DB_USER, $DB_PASS, $SECRET_API_KEY;
+    $saved = loadSavedDbConfig();
+    $cfg = [
+        'DB_HOST' => $saved['DB_HOST'] ?? $DB_HOST,
+        'DB_NAME' => $saved['DB_NAME'] ?? $DB_NAME,
+        'DB_USER' => $saved['DB_USER'] ?? $DB_USER,
+        'DB_PASS' => $saved['DB_PASS'] ?? $DB_PASS,
+        'SECRET_API_KEY' => $saved['SECRET_API_KEY'] ?? $SECRET_API_KEY,
+    ];
+    if (is_array($input)) {
+        $postName = $input['db_name'] ?? $input['cpanel_db_name'] ?? null;
+        $postUser = $input['db_user'] ?? $input['cpanel_db_user'] ?? null;
+        if ($postName && $postUser && !isPlaceholderDb($postName, $postUser)) {
+            $cfg['DB_HOST'] = $input['db_host'] ?? $input['cpanel_db_host'] ?? 'localhost';
+            $cfg['DB_NAME'] = $postName;
+            $cfg['DB_USER'] = $postUser;
+            $cfg['DB_PASS'] = $input['db_pass'] ?? $input['cpanel_db_pass'] ?? '';
+            if (!empty($input['api_key'])) {
+                $cfg['SECRET_API_KEY'] = $input['api_key'];
+            }
+        }
+    }
+    return $cfg;
+}
+
 function getPdoConnection($host, $name, $user, $pass) {
-    if (empty($host) || empty($name) || empty($user) || $name === 'YOUR_CPANEL_DB_NAME' || $user === 'YOUR_CPANEL_DB_USER') {
+    if (isPlaceholderDb($name, $user)) {
         return null;
     }
     try {
@@ -261,11 +312,15 @@ function upsertPublishedSection(PDO $pdo, $name, $content, $advisorId = null) {
     $ins->execute($values);
 }
 
-$pdo = getPdoConnection($DB_HOST, $DB_NAME, $DB_USER, $DB_PASS);
+$rawInput = file_get_contents('php://input');
+$input = $_SERVER['REQUEST_METHOD'] === 'POST' ? (json_decode($rawInput, true) ?: []) : [];
+$dbCfg = resolveDbConfig($_SERVER['REQUEST_METHOD'] === 'POST' ? $input : null);
+if (!empty($dbCfg['SECRET_API_KEY'])) {
+    $SECRET_API_KEY = $dbCfg['SECRET_API_KEY'];
+}
+$pdo = getPdoConnection($dbCfg['DB_HOST'], $dbCfg['DB_NAME'], $dbCfg['DB_USER'], $dbCfg['DB_PASS']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $rawInput = file_get_contents('php://input');
-    $input = json_decode($rawInput, true);
 
     if (!$input) {
         http_response_code(400);
@@ -326,6 +381,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Exception $e) {
             $dbError = $e->getMessage();
         }
+    } else {
+        $dbError = 'Advisor cPanel MySQL is not connected. Fill DB name/user in the Power Admin deploy form (this site\'s database, not the central hub).';
+    }
+
+    if ($pdo && !$dbError && !isPlaceholderDb($dbCfg['DB_NAME'], $dbCfg['DB_USER'])) {
+        persistDbConfig($dbCfg);
     }
 
     if (!file_exists($dataDir)) mkdir($dataDir, 0755, true);
@@ -370,6 +431,8 @@ $result = [
     'sections' => [],
     'sections_list' => [],
     'content_source' => 'empty',
+    'db_connected' => (bool)$pdo,
+    'db_name' => (!empty($dbCfg['DB_NAME']) && !isPlaceholderDb($dbCfg['DB_NAME'], $dbCfg['DB_USER'] ?? '')) ? $dbCfg['DB_NAME'] : null,
 ];
 
 $advisorId = $_GET['advisor_id'] ?? null;
