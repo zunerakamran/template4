@@ -3,8 +3,7 @@ import { images } from '../assets/images.js';
 import CONFIG from '../../config.js';
 
 const uploadsOrigin = String(CONFIG.UPLOADS_ORIGIN || CONFIG.API_URL || '')
-  .replace(/\/api\.php$/i, '')
-  .replace(/\/api\/?$/, '');
+  .replace(/\/api\.php$/i, '');
 
 const isAbsoluteOrInline = (url) =>
   /^(https?:|data:|blob:)/i.test(url);
@@ -13,10 +12,10 @@ const toUploadsUrl = (url) => {
   if (!url) return url;
   if (url.startsWith('data:') || url.startsWith('blob:')) return url;
   let next = url;
-  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(next) && next.includes('/uploads')) {
-    next = next.replace(/^https?:\/\/[^/]+/i, '');
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(next) && (next.includes('/uploads') || next.includes('/uploaded-images'))) {
+    next = '/' + next.split('/').slice(-2).join('/');
   }
-  if (isAbsoluteOrInline(next) && !next.includes('/uploads/')) return next;
+  if (isAbsoluteOrInline(next) && !next.includes('/uploads/') && !next.includes('/uploaded-images/')) return next;
   if (isAbsoluteOrInline(next)) return next;
   if (!uploadsOrigin) return next.startsWith('/') ? next : `/${next}`;
   const path = next.startsWith('/') ? next : `/${next}`;
@@ -24,7 +23,12 @@ const toUploadsUrl = (url) => {
 };
 
 const isUploadPath = (url) =>
-  typeof url === 'string' && (url.startsWith('/uploads') || url.includes('/uploads/'));
+  typeof url === 'string' && (
+    url.startsWith('/uploads') ||
+    url.includes('/uploads/') ||
+    url.startsWith('/uploaded-images') ||
+    url.includes('/uploaded-images/')
+  );
 
 const filenameMap = {};
 
@@ -76,7 +80,7 @@ export const getLocalImg = (url) => {
       return url;
     }
 
-    if (isUploadPath(url) || (/^https?:\/\/(localhost|127\.0\.0\.1)/i.test(url) && url.includes('/uploads'))) {
+    if (isUploadPath(url) || (/^https?:\/\/(localhost|127\.0\.0\.1)/i.test(url) && (url.includes('/uploads') || url.includes('/uploaded-images')))) {
       return toUploadsUrl(url);
     }
 
@@ -103,11 +107,6 @@ const isKeptPreviewSrc = (url) =>
   typeof url === 'string' &&
   (/^(data:|blob:)/i.test(url) || isUploadPath(url));
 
-/**
- * onError handler for <img> tags.
- * Uploads / data URLs are not swapped for the default hero photo — that made
- * advisor previews look unchanged when the real URL failed to load.
- */
 export const imgFallback = (fallbackUrl) => ({
   onError: (e) => {
     e.target.onerror = null;
