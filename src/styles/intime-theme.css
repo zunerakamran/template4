@@ -1,0 +1,402 @@
+:root {
+  --intime-primary: #C8102E;
+  --intime-primary-hover: #A00C23;
+  --intime-navy: #0B1B3D;
+  --intime-navy-dark: #07122A;
+  --intime-light-bg: #F5F5F5;
+  --intime-body-text: #666666;
+  --intime-heading-text: #0B1B3D;
+  --font-serif: 'Libre Caslon Text', Georgia, serif;
+  --font-sans: 'Poppins', sans-serif;   /* ← was 'Red Hat Display', 'Outfit' */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--intime-body-text);
+  background-color: #FFFFFF;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  color: var(--intime-heading-text);
+  line-height: 1.25;
+}
+
+/* ========================================
+   TRIPLE SLASH SUBTITLE BADGE (e.g. /// ABOUT US)
+   ======================================== */
+.intime-triple-slash {
+  color: #C8102E;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  margin-bottom: 12px;
+}
+
+
+
+/* ========================================
+   PRIMARY RED BUTTON
+   ======================================== */
+.btn-intime-red {
+  background-color: #C8102E;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 14px 30px;
+  border-radius: 0;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-intime-red:hover {
+  background-color: #0B1B3D;
+  color: #ffffff;
+}
+
+/* ========================================
+   OUTLINE NAVY BUTTON
+   ======================================== */
+.btn-intime-outline {
+  background: transparent;
+  color: #0B1B3D;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 13px 30px;
+  border-radius: 0;
+  border: 2px solid #0B1B3D;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-intime-outline:hover {
+  background: #0B1B3D;
+  color: #fff;
+}
+
+/* ========================================
+   HEXAGON ICON BADGE
+   ======================================== */
+.hexagon-badge {
+  width: 64px;
+  height: 72px;
+  background-color: #C8102E;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.group:hover .hexagon-badge {
+  transform: scale(1.08) rotate(6deg);
+  background-color: #0B1B3D;
+}
+
+/* ========================================
+   CARD SHADOW
+   ======================================== */
+.intime-shadow {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.intime-shadow:hover {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+/* ========================================
+   SECTION HEADINGS UNDERLINE DECORATOR
+   ======================================== */
+.section-title-underline::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 3px;
+  background: #C8102E;
+  margin-top: 14px;
+}
+
+/* ========================================
+   CIRCULAR PROGRESS GAUGE
+   ======================================== */
+.circular-gauge {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 5px solid #C8102E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  color: #0B1B3D;
+  font-family: var(--font-serif);
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(200,16,46,0.15);
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* ========================================
+   CHEVRON STEP (timeline arrow)
+   ======================================== */
+.chevron-step {
+  background: #C8102E;
+  color: white;
+  padding: 28px 28px 28px 42px;
+  clip-path: polygon(0% 0%, 88% 0%, 100% 50%, 88% 100%, 0% 100%, 12% 50%);
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.chevron-step.dark {
+  background: #0B1B3D;
+}
+
+.chevron-step:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.1);
+}
+
+/* ========================================
+   PROGRESS BAR TRACK
+   ======================================== */
+.intime-progress-track {
+  width: 100%;
+  height: 8px;
+  background: #E8E8E8;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.intime-progress-fill {
+  height: 100%;
+  background: #C8102E;
+  border-radius: 4px;
+  transition: width 1.2s ease-out;
+}
+
+/* ========================================
+   TESTIMONIAL QUOTE LINE
+   ======================================== */
+.testimonial-quote-border {
+  border-left: 4px solid #C8102E;
+  padding-left: 24px;
+  margin: 24px 0;
+}
+
+/* ========================================
+   FOOTER COLUMN HEADING UNDERLINE
+   ======================================== */
+.footer-col-title {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  position: relative;
+}
+
+.footer-col-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 32px;
+  height: 2px;
+  background: #C8102E;
+}
+
+/* ========================================
+   GALLERY PHOTO GRID
+   ======================================== */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.gallery-grid-item {
+  height: 72px;
+  overflow: hidden;
+  position: relative;
+}
+
+.gallery-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.gallery-grid-item:hover img {
+  transform: scale(1.15);
+}
+
+/* ========================================
+   CLIENT LOGO ROW
+   ======================================== */
+.client-logo-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+  transition: opacity 0.3s ease, filter 0.3s ease;
+  filter: grayscale(100%);
+}
+
+.client-logo-item:hover {
+  opacity: 1;
+  filter: grayscale(0%);
+}
+
+/* ========================================
+   STAT COUNTER DIVIDER
+   ======================================== */
+.counter-divider {
+  width: 1px;
+  background: rgba(255,255,255,0.2);
+  margin: 0 auto;
+  height: 60px;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .counter-divider { display: block; }
+}
+
+/* ========================================
+   CTA BANNER DARK OVERLAY
+   ======================================== */
+.cta-banner-section {
+  background: #0B1B3D;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-banner-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/assets/intime/banner1.jpg') center/cover no-repeat;
+  opacity: 0.06;
+}
+
+/* ========================================
+   STICKY NAV ACTIVE UNDERLINE
+   ======================================== */
+.nav-link-active {
+  color: #C8102E !important;
+  position: relative;
+}
+
+.nav-link-active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #C8102E;
+}
+
+/* ========================================
+   HERO GRADIENT
+   ======================================== */
+.hero-overlay {
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0.96) 0%,
+    rgba(255,255,255,0.85) 40%,
+    rgba(255,255,255,0.5) 65%,
+    rgba(255,255,255,0.05) 100%
+  );
+}
+
+/* ========================================
+   ICON BADGE ON CARD (for feature cards)
+   ======================================== */
+.card-icon-badge {
+  width: 54px;
+  height: 54px;
+  background: #C8102E;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  transition: background 0.3s ease;
+}
+
+.group:hover .card-icon-badge {
+  background: #0B1B3D;
+}
+
+/* ========================================
+   MOBILE MENU SLIDE IN
+   ======================================== */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+
+.mobile-menu-panel {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* ========================================
+   FADE IN ANIMATION
+   ======================================== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease;
+}

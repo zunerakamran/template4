@@ -1,0 +1,8 @@
+<IfModule mod_headers.c>
+    Header unset X-Frame-Options
+    Header set X-Frame-Options "ALLOWALL"
+    Header set Content-Security-Policy "frame-ancestors *"
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-API-Key, X-Requested-With"
+</IfModule>

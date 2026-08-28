@@ -1,0 +1,107 @@
+@font-face {
+  font-family: "Flaticon-V2";
+  src: url("/fonts/Flaticon-v2.eot");
+  src: url("/fonts/Flaticon-v2.eot?#iefix") format("embedded-opentype"),
+       url("/fonts/Flaticon-v2.woff2") format("woff2"),
+       url("/fonts/Flaticon-v2.woff") format("woff"),
+       url("/fonts/Flaticon-v2.ttf") format("truetype"),
+       url("/fonts/Flaticon-v2.svg#Flaticon-V2") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "Flaticon-V2";
+    src: url("/fonts/Flaticon-v2.svg#Flaticon-V2") format("svg");
+  }
+}
+
+body [class^="flaticon-v2-"]:before, body [class*=" flaticon-v2-"]:before,
+body [class^="flaticon-v2-"]:after, body [class*=" flaticon-v2-"]:after {   
+  font-family: Flaticon-V2;
+  font-size: inherit;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.flaticon-v2-finance:before { content: "\f100"; }
+.flaticon-v2-bars:before { content: "\f101"; }
+.flaticon-v2-money:before { content: "\f102"; }
+.flaticon-v2-stats:before { content: "\f103"; }
+.flaticon-v2-report:before { content: "\f104"; }
+.flaticon-v2-finance-1:before { content: "\f105"; }
+.flaticon-v2-dashboard:before { content: "\f106"; }
+.flaticon-v2-presentation:before { content: "\f107"; }
+.flaticon-v2-finance-2:before { content: "\f108"; }
+.flaticon-v2-bill:before { content: "\f109"; }
+.flaticon-v2-bar-chart:before { content: "\f10a"; }
+.flaticon-v2-report-1:before { content: "\f10b"; }
+.flaticon-v2-analysis-1:before { content: "\f10c"; }
+.flaticon-v2-investment:before { content: "\f10d"; }
+.flaticon-v2-chart:before { content: "\f10e"; }
+.flaticon-v2-asset-management:before { content: "\f10f"; }
+.flaticon-v2-sales:before { content: "\f110"; }
+.flaticon-v2-business:before { content: "\f111"; }
+.flaticon-v2-analytics:before { content: "\f112"; }
+.flaticon-v2-meeting:before { content: "\f113"; }
+.flaticon-v2-bar-chart-1:before { content: "\f114"; }
+.flaticon-v2-analysis-2:before { content: "\f115"; }
+.flaticon-v2-collaboration:before { content: "\f116"; }
+.flaticon-v2-business-1:before { content: "\f117"; }
+.flaticon-v2-suitcase:before { content: "\f118"; }
+.flaticon-v2-structure:before { content: "\f119"; }
+.flaticon-v2-line-graph:before { content: "\f11a"; }
+.flaticon-v2-business-2:before { content: "\f11b"; }
+.flaticon-v2-graph:before { content: "\f11c"; }
+.flaticon-v2-rise:before { content: "\f11d"; }
+.flaticon-v2-line-graph-1:before { content: "\f11e"; }
+.flaticon-v2-graph-1:before { content: "\f11f"; }
+.flaticon-v2-graph-2:before { content: "\f120"; }
+.flaticon-v2-planning:before { content: "\f121"; }
+.flaticon-v2-report-2:before { content: "\f122"; }
+.flaticon-v2-graph-3:before { content: "\f123"; }
+.flaticon-v2-whiteboard:before { content: "\f124"; }
+.flaticon-v2-business-report:before { content: "\f125"; }
+.flaticon-v2-business-3:before { content: "\f126"; }
+.flaticon-v2-boss:before { content: "\f127"; }
+.flaticon-v2-research:before { content: "\f128"; }
+.flaticon-v2-data-analysis:before { content: "\f129"; }
+.flaticon-v2-business-4:before { content: "\f12a"; }
+.flaticon-v2-networking:before { content: "\f12b"; }
+.flaticon-v2-calculations:before { content: "\f12c"; }
+.flaticon-v2-setting:before { content: "\f12d"; }
+.flaticon-v2-cost:before { content: "\f12e"; }
+.flaticon-v2-index:before { content: "\f12f"; }
+.flaticon-v2-optimization:before { content: "\f130"; }
+.flaticon-v2-bank:before { content: "\f131"; }
+.flaticon-v2-business-5:before { content: "\f132"; }
+.flaticon-v2-development:before { content: "\f133"; }
+.flaticon-v2-email:before { content: "\f134"; }
+.flaticon-v2-business-6:before { content: "\f135"; }
+.flaticon-v2-diagram:before { content: "\f136"; }
+.flaticon-v2-organization-chart:before { content: "\f137"; }
+.flaticon-v2-bilateralism:before { content: "\f138"; }
+.flaticon-v2-employee:before { content: "\f139"; }
+.flaticon-v2-team:before { content: "\f13a"; }
+.flaticon-v2-business-7:before { content: "\f13b"; }
+.flaticon-v2-business-8:before { content: "\f13c"; }
+.flaticon-v2-business-chart:before { content: "\f13d"; }
+.flaticon-v2-business-9:before { content: "\f13e"; }
+.flaticon-v2-business-10:before { content: "\f13f"; }
+.flaticon-v2-documents:before { content: "\f140"; }
+.flaticon-v2-research-1:before { content: "\f141"; }
+.flaticon-v2-research-2:before { content: "\f142"; }
+.flaticon-v2-segmentation:before { content: "\f143"; }
+.flaticon-v2-search:before { content: "\f144"; }
+.flaticon-v2-monitor:before { content: "\f145"; }
+.flaticon-v2-survey:before { content: "\f146"; }
+.flaticon-v2-seo:before { content: "\f147"; }
+.flaticon-v2-digital-marketing:before { content: "\f148"; }
+.flaticon-v2-digital-marketing-1:before { content: "\f149"; }
+.flaticon-v2-graph-4:before { content: "\f14a"; }
+.flaticon-v2-online-advertising:before { content: "\f14b"; }
+.flaticon-v2-rocket:before { content: "\f14c"; }
+.flaticon-v2-pie-chart:before { content: "\f14d"; }
+.flaticon-v2-website:before { content: "\f14e"; }
+.flaticon-v2-pie-chart-1:before { content: "\f14f"; }
