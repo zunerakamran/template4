@@ -1,39 +1,55 @@
-// src/templates/template4/utils/img.js
 // All images are resolved from the local images index (ES module imports).
-// This ensures Vite serves/bundles them from template4/assets/images/
-// without needing any public-folder copies or custom middleware.
-
 import { images } from '../assets/images.js';
+import CONFIG from '../../config.js';
 
-// Build a multi-key lookup map to resolve any image key/filename/URL
-// including Vite hashed names, raw filenames (intime-08.jpg), camelCase keys (intime08), etc.
+const uploadsOrigin = String(CONFIG.UPLOADS_ORIGIN || CONFIG.API_URL || '')
+  .replace(/\/api\.php$/i, '')
+  .replace(/\/api\/?$/, '');
+
+const isAbsoluteOrInline = (url) =>
+  /^(https?:|data:|blob:)/i.test(url);
+
+const toUploadsUrl = (url) => {
+  if (!url) return url;
+  if (url.startsWith('data:') || url.startsWith('blob:')) return url;
+  let next = url;
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(next) && next.includes('/uploads')) {
+    next = next.replace(/^https?:\/\/[^/]+/i, '');
+  }
+  if (isAbsoluteOrInline(next) && !next.includes('/uploads/')) return next;
+  if (isAbsoluteOrInline(next)) return next;
+  if (!uploadsOrigin) return next.startsWith('/') ? next : `/${next}`;
+  const path = next.startsWith('/') ? next : `/${next}`;
+  return `${uploadsOrigin}${path}`;
+};
+
+const isUploadPath = (url) =>
+  typeof url === 'string' && (url.startsWith('/uploads') || url.includes('/uploads/'));
+
 const filenameMap = {};
 
 if (images && typeof images === 'object') {
   Object.entries(images).forEach(([key, url]) => {
     if (typeof url !== 'string') return;
 
-    // Extract raw filename from imported URL (e.g., intime-08-Bx9aL12z.jpg or intime-08.jpg)
     const rawFilename = url.split('/').pop().split('?')[0];
+    const cleanFilename = rawFilename.replace(/-[A-Za-z0-9]{8}(\.[^.]+)$/, '$1');
+    const stem = cleanFilename.replace(/\.[^/.]+$/, '');
 
-    // Strip Vite production hash if present (e.g. intime-08-C8a912b3.jpg -> intime-08.jpg)
-    const cleanFilename = rawFilename.replace(/(-[a-zA-Z0-9_-]{8,})(\.[a-zA-Z0-9]+)$/, '$2');
-
-    // Register all possible lookup variations
     const keysToRegister = [
-      key,                                       // e.g. "intime08"
-      key.toLowerCase(),                         // e.g. "intime08"
-      rawFilename,                               // e.g. "intime-08-C8a912b3.jpg"
+      key,
+      key.toLowerCase(),
+      rawFilename,
       rawFilename.toLowerCase(),
-      cleanFilename,                             // e.g. "intime-08.jpg"
+      cleanFilename,
       cleanFilename.toLowerCase(),
-      cleanFilename.replace(/\.[^/.]+$/, ''),    // e.g. "intime-08"
-      cleanFilename.replace(/\.[^/.]+$/, '').toLowerCase(),
-      cleanFilename.replace(/-/g, ''),           // e.g. "intime08.jpg"
-      cleanFilename.replace(/-/g, '').replace(/\.[^/.]+$/, '') // e.g. "intime08"
+      stem,
+      stem.toLowerCase(),
+      cleanFilename.replace(/-/g, ''),
+      stem.replace(/-/g, ''),
     ];
 
-    keysToRegister.forEach(k => {
+    keysToRegister.forEach((k) => {
       if (k && !filenameMap[k]) {
         filenameMap[k] = url;
       }
@@ -42,18 +58,13 @@ if (images && typeof images === 'object') {
 }
 
 /**
- * Resolve any image path to the locally bundled URL.
- * - If url is already a data URL or blob URL, return as-is.
- * - If url is an unsplash placeholder from legacy backend, swap with high-res local asset.
- * - Looks up filename in the multi-key local images map.
- * - If not found and starts with / or http(s)://, returns url as-is.
- * - Otherwise falls back to images.intime08.
+ * Resolve any image path to a URL the browser can load.
+ * Local names work with or without extension (intime-08 or intime-08.jpg).
  */
 export const getLocalImg = (url) => {
   if (!url) return images.intime08 || images.bgSlider1;
 
   if (typeof url === 'string') {
-    // Intercept unsplash URLs from database and replace with local folder images
     if (url.includes('unsplash.com')) {
       if (url.includes('photo-1551836022')) return images.bgSlider1 || images.intime08;
       if (url.includes('photo-1560472354')) return images.bgSlider2 || images.intime12;
@@ -61,47 +72,57 @@ export const getLocalImg = (url) => {
       return images.bgSlider1 || images.intime08;
     }
 
-    // Custom uploaded images from dashboard backend or data/blob URLs
-    if (url.startsWith('/uploads') || url.includes('/uploads/') || url.startsWith('data:') || url.startsWith('blob:')) {
+    if (url.startsWith('data:') || url.startsWith('blob:')) {
       return url;
     }
 
-    // Extract filename from given URL / string
-    const filename = url.split('/').pop().split('?')[0];
+    if (isUploadPath(url) || (/^https?:\/\/(localhost|127\.0\.0\.1)/i.test(url) && url.includes('/uploads'))) {
+      return toUploadsUrl(url);
+    }
 
-    // Try filename lookup variations
+    const filename = url.split('/').pop().split('?')[0];
+    const noExt = filename.replace(/\.[^/.]+$/, '');
+
     if (filenameMap[filename]) return filenameMap[filename];
     if (filenameMap[filename.toLowerCase()]) return filenameMap[filename.toLowerCase()];
-
-    const noExt = filename.replace(/\.[^/.]+$/, '');
     if (filenameMap[noExt]) return filenameMap[noExt];
+    if (filenameMap[noExt.toLowerCase()]) return filenameMap[noExt.toLowerCase()];
 
     const cleanHyphen = filename.replace(/-/g, '');
     if (filenameMap[cleanHyphen]) return filenameMap[cleanHyphen];
+    if (filenameMap[noExt.replace(/-/g, '')]) return filenameMap[noExt.replace(/-/g, '')];
 
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
-      return url;
-    }
+    if (isUploadPath(url)) return toUploadsUrl(url);
+    if (isAbsoluteOrInline(url) || url.startsWith('/')) return url;
   }
 
   return images.intime08 || images.bgSlider1;
 };
 
+const isKeptPreviewSrc = (url) =>
+  typeof url === 'string' &&
+  (/^(data:|blob:)/i.test(url) || isUploadPath(url));
+
 /**
- * onError handler for <img> tags: swaps to local bundled copy on load failure.
+ * onError handler for <img> tags.
+ * Uploads / data URLs are not swapped for the default hero photo — that made
+ * advisor previews look unchanged when the real URL failed to load.
  */
 export const imgFallback = (fallbackUrl) => ({
   onError: (e) => {
     e.target.onerror = null;
+    const current = e.target.src || '';
+    if (isKeptPreviewSrc(current) || isKeptPreviewSrc(fallbackUrl)) {
+      return;
+    }
     const defaultFallback = images.intime08 || images.bgSlider1;
-    if (fallbackUrl) {
-      const resolved = getLocalImg(fallbackUrl);
-      e.target.src = (resolved !== fallbackUrl) ? resolved : defaultFallback;
+    const resolved = fallbackUrl ? getLocalImg(fallbackUrl) : null;
+    if (resolved && resolved !== current) {
+      e.target.src = resolved;
     } else {
       e.target.src = defaultFallback;
     }
   },
 });
 
-// Re-export images for direct use in components
 export { images };

@@ -52,6 +52,7 @@ const resolveSlides = (data) => {
 const HeroSlider = ({ data, ready = false }) => {
   const [current, setCurrent] = useState(0);
   const [fading, setFading] = useState(false);
+  const isPreviewFrame = typeof window !== 'undefined' && window.parent !== window;
 
   const hasApiData = Boolean(
     (Array.isArray(data?.slides) && data.slides.length > 0) ||
@@ -67,10 +68,16 @@ const HeroSlider = ({ data, ready = false }) => {
   };
 
   useEffect(() => {
-    if (slides.length === 0) return undefined;
+    if (typeof data?.preview_slide === 'number' && data.preview_slide >= 0 && data.preview_slide < slides.length) {
+      setCurrent(data.preview_slide);
+    }
+  }, [data?.preview_slide, slides.length]);
+
+  useEffect(() => {
+    if (isPreviewFrame || slides.length === 0) return undefined;
     const t = setInterval(() => goTo((current + 1) % slides.length), 6000);
     return () => clearInterval(t);
-  }, [current, slides.length]);
+  }, [current, slides.length, isPreviewFrame]);
 
   if (waiting) {
     return (
@@ -99,7 +106,8 @@ const HeroSlider = ({ data, ready = false }) => {
   return (
     <section id="hero" className="relative w-full overflow-hidden bg-[#0B1B3D]" style={{ minHeight: '680px' }}>
       <img
-        {...imgFallback(bgUrl)}
+        key={`${current}-${String(activeBg)}-${bgUrl}`}
+        {...imgFallback(activeBg)}
         src={bgUrl}
         alt="Intime"
         className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
