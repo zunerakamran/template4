@@ -258,19 +258,44 @@ function fetchSectionRows(PDO $pdo, $advisorId = null) {
     return $stmt->fetchAll() ?: [];
 }
 
+function decodeSectionContent($cnt) {
+    if (is_string($cnt)) {
+        $decoded = json_decode($cnt, true);
+        return is_array($decoded) ? $decoded : $cnt;
+    }
+    return $cnt;
+}
+
+function sectionContentRank($cnt) {
+    if (!is_array($cnt)) return 0;
+    $rank = count($cnt);
+    if (!empty($cnt['boxes']) && is_array($cnt['boxes'])) {
+        $rank += 50 + count($cnt['boxes']);
+    }
+    if (!empty($cnt['slides']) && is_array($cnt['slides'])) {
+        $rank += 50 + count($cnt['slides']);
+    }
+    return $rank;
+}
+
 function rowsToSections(array $rows) {
     $sections = [];
+    $listIndex = [];
     $list = [];
     foreach ($rows as $row) {
         $name = canonicalSectionName($row['name'] ?? '');
-        if ($name === '' || isset($sections[$name])) continue;
-        $cnt = $row['content'] ?? null;
-        if (is_string($cnt)) {
-            $decoded = json_decode($cnt, true);
-            $cnt = is_array($decoded) ? $decoded : $cnt;
+        if ($name === '') continue;
+        $cnt = decodeSectionContent($row['content'] ?? null);
+        if (!isset($sections[$name])) {
+            $sections[$name] = $cnt;
+            $listIndex[$name] = count($list);
+            $list[] = ['name' => $name, 'content' => $cnt];
+            continue;
         }
-        $sections[$name] = $cnt;
-        $list[] = ['name' => $name, 'content' => $cnt];
+        if (sectionContentRank($cnt) > sectionContentRank($sections[$name])) {
+            $sections[$name] = $cnt;
+            $list[$listIndex[$name]]['content'] = $cnt;
+        }
     }
     return [$sections, $list];
 }
@@ -287,23 +312,40 @@ function upsertPublishedSection(PDO $pdo, $name, $content, $advisorId = null) {
     $json = is_string($content) ? $content : json_encode($content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $hasAdvisor = isset($cols['advisor_id']);
     $hasPage = isset($cols['page_id']);
+    $hasId = isset($cols['id']);
 
-    if ($hasAdvisor && $advisorId !== null && $advisorId !== '') {
-        $find = $pdo->prepare("SELECT `id` FROM `sections` WHERE `{$nameCol}` = ? AND `advisor_id` = ? LIMIT 1");
-        $find->execute([$name, $advisorId]);
-        $id = $find->fetchColumn();
-        if ($id) {
-            $upd = $pdo->prepare("UPDATE `sections` SET `{$contentCol}` = ? WHERE `id` = ?");
-            $upd->execute([$json, $id]);
+    $updated = 0;
+    if ($hasId) {
+        $select = "SELECT `id`, `{$nameCol}` AS name";
+        if ($hasAdvisor) {
+            $select .= ', `advisor_id`';
+        }
+        $select .= ' FROM `sections`';
+        $existing = $pdo->query($select)->fetchAll() ?: [];
+        $upd = $pdo->prepare("UPDATE `sections` SET `{$contentCol}` = ?, `{$nameCol}` = ? WHERE `id` = ?");
+
+        foreach ($existing as $row) {
+            if (canonicalSectionName($row['name'] ?? '') !== $name) {
+                continue;
+            }
+            if ($hasAdvisor && $advisorId !== null && $advisorId !== '') {
+                $rowAdvisor = $row['advisor_id'] ?? null;
+                if ($rowAdvisor !== null && (string)$rowAdvisor !== (string)$advisorId) {
+                    continue;
+                }
+            }
+            $upd->execute([$json, $name, $row['id']]);
+            $updated++;
+        }
+        if ($updated > 0) {
             return;
         }
     } else {
-        $find = $pdo->prepare("SELECT `id` FROM `sections` WHERE `{$nameCol}` = ? LIMIT 1");
+        $find = $pdo->prepare("SELECT `{$nameCol}` FROM `sections` WHERE `{$nameCol}` = ? LIMIT 1");
         $find->execute([$name]);
-        $id = $find->fetchColumn();
-        if ($id) {
-            $upd = $pdo->prepare("UPDATE `sections` SET `{$contentCol}` = ? WHERE `id` = ?");
-            $upd->execute([$json, $id]);
+        if ($find->fetchColumn()) {
+            $upd = $pdo->prepare("UPDATE `sections` SET `{$contentCol}` = ? WHERE `{$nameCol}` = ?");
+            $upd->execute([$json, $name]);
             return;
         }
     }
