@@ -73,16 +73,16 @@
     ]
   },
   "Company History": {
-    "eyebrow": "OUR JOURNEY",
+    "subheading": "OUR JOURNEY",
     "heading": "Our Company History",
-    "subheading": "A decade of growth, innovation, and unwavering commitment to client success.",
-    "items": [
-      { "year": "2010", "step": "01", "title": "Started Business", "desc": "We partner with you to enable your technology so you focus on your organization's mission, leveraging our top-tier talent.", "image_url": "intime-06.jpg", "highlight": "Company Founded" },
-      { "year": "2012", "step": "02", "title": "Resilience & Expansion", "desc": "A dedicated People Ops leader committed to the growth and continuous development of leaders across operations.", "image_url": "intime-07.jpg", "highlight": "10+ Key Partners" },
-      { "year": "2016", "step": "03", "title": "Crisis & Opportunity", "desc": "Our support works around the clock to ensure your business operations are secure, resilient, and monitored safely.", "image_url": "intime-09.jpg", "highlight": "24/7 Support Launched" },
-      { "year": "2017", "step": "04", "title": "50+ Branches Milestone", "desc": "We cross industries and provide services to almost every business either as a co-managed or supplemental asset.", "image_url": "intime-01.jpg", "highlight": "50+ Nationwide Branches" },
-      { "year": "2019", "step": "05", "title": "100+ Global Branches", "desc": "Providing consulting expertise on vendor technology, IT budget strategy, and multi-cloud enterprise security.", "image_url": "intime-04.jpg", "highlight": "Global Market Entry" },
-      { "year": "2021", "step": "06", "title": "Industry Excellence Award", "desc": "Our team is held to the highest level of accountability to ensure exceptional satisfaction and proven results.", "image_url": "intime-10.jpg", "highlight": "Top Enterprise Award" }
+    "text": "A decade of growth, innovation, and unwavering commitment to client success.",
+    "years": [
+      { "year": "2010", "red_text": "2010 Milestone", "grey_text": "Company Founded", "heading": "Started Business", "image_url": "intime-06.jpg", "text": "We partner with you to enable your technology so you focus on your organization's mission, leveraging our top-tier talent." },
+      { "year": "2012", "red_text": "2012 Milestone", "grey_text": "10+ Key Partners", "heading": "Resilience & Expansion", "image_url": "intime-07.jpg", "text": "A dedicated People Ops leader committed to the growth and continuous development of leaders across operations." },
+      { "year": "2016", "red_text": "2016 Milestone", "grey_text": "24/7 Support Launched", "heading": "Crisis & Opportunity", "image_url": "intime-09.jpg", "text": "Our support works around the clock to ensure your business operations are secure, resilient, and monitored safely." },
+      { "year": "2017", "red_text": "2017 Milestone", "grey_text": "50+ Nationwide Branches", "heading": "50+ Branches Milestone", "image_url": "intime-01.jpg", "text": "We cross industries and provide services to almost every business either as a co-managed or supplemental asset." },
+      { "year": "2019", "red_text": "2019 Milestone", "grey_text": "Global Market Entry", "heading": "100+ Global Branches", "image_url": "intime-04.jpg", "text": "Providing consulting expertise on vendor technology, IT budget strategy, and multi-cloud enterprise security." },
+      { "year": "2021", "red_text": "2021 Milestone", "grey_text": "Top Enterprise Award", "heading": "Industry Excellence Award", "image_url": "intime-10.jpg", "text": "Our team is held to the highest level of accountability to ensure exceptional satisfaction and proven results." }
     ]
   },
   "Featured Services": {
