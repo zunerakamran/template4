@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlay, FaArrowRight } from 'react-icons/fa';
-import { imgFallback, images } from '../../utils/img';
+import { getLocalImg, imgFallback, images } from '../../utils/img';
 
 const DEFAULT_SLIDES = [
   {
     id: 1,
-    bg: images.intime08,
+    bg: images.bgSlider1 || images.intime08,
+    eyebrow: 'FINANCIAL CENTRE & WEALTH MANAGEMENT',
+    heading: 'Prosper in this volatile market funding.',
+    subheading: 'Customized financial planning, investment strategies, and fiduciary advice for leaders and families.',
     title: ['Prosper in this', 'volatile market', 'funding.'],
   },
   {
     id: 2,
-    bg: images.intime12,
+    bg: images.bgSlider2 || images.intime12,
+    eyebrow: 'STRATEGIC GROWTH & ADVISORY',
+    heading: 'We do the best thing for market funding.',
+    subheading: 'Comprehensive solutions tailored to accelerate your financial goals and wealth stability.',
     title: ['We do the best', 'thing for market', 'funding.'],
   },
   {
     id: 3,
-    bg: images.intime15,
+    bg: images.bgSlider3 || images.intime15,
+    eyebrow: 'TRUSTED FIDUCIARY ADVISORY',
+    heading: 'We have to do business for your satisfaction.',
+    subheading: 'Dedicated experts navigating market complexity to protect and grow your assets.',
     title: ['We have to do', 'business for your', 'Satisfiction.'],
   },
 ];
@@ -75,7 +84,8 @@ const HeroSlider = ({ data, ready = false }) => {
   }
 
   const slide = slides[current];
-  const activeBg = slide?.bg || images.intime08;
+  const activeBg = slide?.bg || slide?.image_url || images.intime08;
+  const bgUrl = getLocalImg(activeBg);
   const eyebrow = slide?.eyebrow || 'FINANCIAL CENTRE & WEALTH MANAGEMENT';
   const heading = slide?.heading;
   const subheading = slide?.subheading || 'Customized financial planning, investment strategies, and fiduciary advice for leaders and families.';
@@ -89,8 +99,8 @@ const HeroSlider = ({ data, ready = false }) => {
   return (
     <section id="hero" className="relative w-full overflow-hidden bg-[#0B1B3D]" style={{ minHeight: '680px' }}>
       <img
-        {...imgFallback(activeBg)}
-        src={activeBg}
+        {...imgFallback(bgUrl)}
+        src={bgUrl}
         alt="Intime"
         className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
         style={{ opacity: fading ? 0 : 1 }}

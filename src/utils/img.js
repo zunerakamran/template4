@@ -20,11 +20,15 @@ const filenameMap = Object.fromEntries(
  * - Falls back to placeholder.png if not found.
  */
 export const getLocalImg = (url) => {
-  if (!url) return images.placeholder;
-  // Already a bundled asset URL or data URL
-  if (url.startsWith('data:') || url.startsWith('blob:')) return url;
-  const filename = url.split('/').pop().split('?')[0];
-  return filenameMap[filename] || images.placeholder;
+  if (!url) return images.intime08 || images.placeholder;
+  if (
+    typeof url === 'string' &&
+    (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/uploads') || url.startsWith('data:') || url.startsWith('blob:'))
+  ) {
+    return url;
+  }
+  const filename = String(url).split('/').pop().split('?')[0];
+  return filenameMap[filename] || (typeof url === 'string' && url.startsWith('/') ? url : (images.intime08 || images.placeholder));
 };
 
 /**
