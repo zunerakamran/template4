@@ -14,16 +14,13 @@ header('Content-Type: application/json');
 // Advisor cPanel live site
 // Fill these with THIS advisor's cPanel MySQL credentials (not the hub DB).
 // --------------------------------------------------------------------------
-$SECRET_API_KEY = "YOUR_SECRET_KEY";
+$SECRET_API_KEY = "sec_epatronus_live_key_987654321";
 
+// Advisor site MySQL on epatronus.space (not the hub at devznr.epatronus.net).
 $DB_HOST = "localhost";
-$DB_NAME = "YOUR_CPANEL_DB_NAME";
-$DB_USER = "YOUR_CPANEL_DB_USER";
-$DB_PASS = "YOUR_CPANEL_DB_PASS";
-
-// Approved advisor content lives on the hub. The live site reads this first so
-// epatronus.space does not stay stale when only the hub MySQL was updated.
-$HUB_HOME_URL = "https://devznr.epatronus.net/compliance/api/api/pages/home";
+$DB_NAME = "epspace_compliance_template4_database";
+$DB_USER = "epspace_compliance_template4_database_user";
+$DB_PASS = "cd8jtxl3.JTi";
 
 $manualConfigFile = __DIR__ . '/cpanel-config.php';
 if (file_exists($manualConfigFile)) {
@@ -34,7 +31,6 @@ if (file_exists($manualConfigFile)) {
         $DB_USER = $manual['DB_USER'] ?? $DB_USER;
         $DB_PASS = $manual['DB_PASS'] ?? $DB_PASS;
         $SECRET_API_KEY = $manual['SECRET_API_KEY'] ?? $SECRET_API_KEY;
-        $HUB_HOME_URL = $manual['HUB_HOME_URL'] ?? $HUB_HOME_URL;
     }
 }
 
@@ -271,45 +267,6 @@ function decodeSectionContent($cnt) {
     return $cnt;
 }
 
-function fetchHubHomePage($url, $advisorId) {
-    $url = trim((string)$url);
-    if ($url === '') return null;
-    $advisor = ($advisorId === null || $advisorId === '') ? '6' : (string)$advisorId;
-    $full = $url . (strpos($url, '?') === false ? '?' : '&') . 'advisor_id=' . rawurlencode($advisor);
-    $raw = null;
-    $code = 0;
-    if (function_exists('curl_init')) {
-        $ch = curl_init($full);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_TIMEOUT => 12,
-            CURLOPT_HTTPHEADER => ['Accept: application/json', 'Cache-Control: no-cache'],
-        ]);
-        $raw = curl_exec($ch);
-        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($raw === false || $code < 200 || $code >= 300) {
-            $raw = null;
-        }
-    }
-    if ($raw === null) {
-        $ctx = stream_context_create([
-            'http' => [
-                'timeout' => 12,
-                'header' => "Accept: application/json\r\nCache-Control: no-cache\r\n",
-            ],
-        ]);
-        $raw = @file_get_contents($full, false, $ctx);
-    }
-    if (!$raw) return null;
-    $decoded = json_decode($raw, true);
-    if (!is_array($decoded)) return null;
-    if (empty($decoded['sections']) && empty($decoded['sections_list'])) return null;
-    return $decoded;
-}
-
 function sectionContentRank($cnt) {
     if (!is_array($cnt)) return 0;
     $rank = count($cnt);
@@ -543,30 +500,6 @@ $result = [
 
 $advisorId = $_GET['advisor_id'] ?? null;
 
-$hubPayload = fetchHubHomePage($HUB_HOME_URL ?? '', $advisorId);
-if (is_array($hubPayload)) {
-    $list = $hubPayload['sections_list'] ?? [];
-    if (empty($list) && !empty($hubPayload['sections']) && is_array($hubPayload['sections'])) {
-        foreach ($hubPayload['sections'] as $secName => $secContent) {
-            $list[] = ['name' => $secName, 'content' => $secContent];
-        }
-    }
-    $mapped = [];
-    $mappedList = [];
-    foreach ($list as $sec) {
-        $name = canonicalSectionName($sec['name'] ?? '');
-        if ($name === '' || isset($mapped[$name])) continue;
-        $cnt = decodeSectionContent($sec['content'] ?? null);
-        $mapped[$name] = $cnt;
-        $mappedList[] = ['name' => $name, 'content' => $cnt];
-    }
-    if (!empty($mapped)) {
-        $result['sections'] = $mapped;
-        $result['sections_list'] = $mappedList;
-        $result['content_source'] = 'hub_laravel';
-    }
-}
-
 if ($pdo) {
     try {
         $settingsStmt = $pdo->query('SELECT setting_key, setting_value FROM site_settings');
@@ -578,12 +511,10 @@ if ($pdo) {
     }
 
     try {
-        if (empty($result['sections'])) {
-            $rows = fetchSectionRows($pdo, $advisorId);
-            [$result['sections'], $result['sections_list']] = rowsToSections($rows);
-            if (!empty($result['sections'])) {
-                $result['content_source'] = 'cpanel_sections';
-            }
+        $rows = fetchSectionRows($pdo, $advisorId);
+        [$result['sections'], $result['sections_list']] = rowsToSections($rows);
+        if (!empty($result['sections'])) {
+            $result['content_source'] = 'cpanel_sections';
         }
     } catch (Exception $e) {
         $result['db_error'] = $e->getMessage();

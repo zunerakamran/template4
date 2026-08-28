@@ -10,4 +10,5 @@ return [
     'DB_USER' => 'epspace_compliance_template4_database_user',
     'DB_PASS' => 'cd8jtxl3.JTi',
     'SECRET_API_KEY' => 'sec_epatronus_live_key_987654321',
+    // Do not set a hub URL. Live pages must read this cPanel database only.
 ];
