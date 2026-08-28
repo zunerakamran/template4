@@ -21,6 +21,18 @@ $DB_NAME = "YOUR_CPANEL_DB_NAME";
 $DB_USER = "YOUR_CPANEL_DB_USER";
 $DB_PASS = "YOUR_CPANEL_DB_PASS";
 
+$manualConfigFile = __DIR__ . '/cpanel-config.php';
+if (file_exists($manualConfigFile)) {
+    $manual = include $manualConfigFile;
+    if (is_array($manual)) {
+        $DB_HOST = $manual['DB_HOST'] ?? $DB_HOST;
+        $DB_NAME = $manual['DB_NAME'] ?? $DB_NAME;
+        $DB_USER = $manual['DB_USER'] ?? $DB_USER;
+        $DB_PASS = $manual['DB_PASS'] ?? $DB_PASS;
+        $SECRET_API_KEY = $manual['SECRET_API_KEY'] ?? $SECRET_API_KEY;
+    }
+}
+
 $dataDir  = __DIR__ . '/data';
 $dataFile = $dataDir . '/content.json';
 $seedFile = $dataDir . '/default-sections.json';
@@ -155,8 +167,13 @@ function resolveDbConfig($input = null) {
     return $cfg;
 }
 
+$PDO_CONNECT_ERROR = null;
+
 function getPdoConnection($host, $name, $user, $pass) {
+    global $PDO_CONNECT_ERROR;
+    $PDO_CONNECT_ERROR = null;
     if (isPlaceholderDb($name, $user)) {
+        $PDO_CONNECT_ERROR = 'MySQL name/user are still placeholders. Create template4/cpanel-config.php on the advisor cPanel with this site\'s database credentials.';
         return null;
     }
     try {
@@ -165,6 +182,7 @@ function getPdoConnection($host, $name, $user, $pass) {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
     } catch (Exception $e) {
+        $PDO_CONNECT_ERROR = $e->getMessage();
         return null;
     }
 
@@ -433,6 +451,7 @@ $result = [
     'content_source' => 'empty',
     'db_connected' => (bool)$pdo,
     'db_name' => (!empty($dbCfg['DB_NAME']) && !isPlaceholderDb($dbCfg['DB_NAME'], $dbCfg['DB_USER'] ?? '')) ? $dbCfg['DB_NAME'] : null,
+    'db_error' => $PDO_CONNECT_ERROR,
 ];
 
 $advisorId = $_GET['advisor_id'] ?? null;
