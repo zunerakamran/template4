@@ -100,7 +100,16 @@ const Home = () => {
       if (event.data?.type !== 'SECTION_PREVIEW') return;
       const { sectionKey, content } = event.data;
       if (sectionKey && content && typeof content === 'object') {
-        setSectionsMap(prev => ({ ...prev, [sectionKey]: content }));
+        const key = String(sectionKey).toLowerCase().replace(/[^a-z0-9]/g, '');
+        setSectionsMap(prev => {
+          const next = { ...prev, [sectionKey]: content, [key]: content };
+          if (key.includes('about')) {
+            next.aboutsection = content;
+            next.about = content;
+            next.aboutus = content;
+          }
+          return next;
+        });
       }
     };
     window.addEventListener('message', handleMessage);

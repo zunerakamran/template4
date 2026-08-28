@@ -6,25 +6,45 @@ const DEFAULT_GAUGES = [
   { value: '75%', label: 'Finance valuable ideas' },
 ];
 
+const firstText = (...vals) => {
+  for (const v of vals) {
+    if (v != null && String(v).trim() !== '') return v;
+  }
+  return '';
+};
+
 const resolveGauges = (data) => {
-  const list = Array.isArray(data?.gauges) && data.gauges.length
+  const list = Array.isArray(data?.gauges)
     ? data.gauges
-    : (Array.isArray(data?.stats) && data.stats.length ? data.stats : null);
-  if (!list) return DEFAULT_GAUGES;
-  return DEFAULT_GAUGES.map((fallback, i) => ({
-    ...fallback,
-    ...(list[i] || {}),
+    : (Array.isArray(data?.stats) ? data.stats : []);
+  return [0, 1].map((i) => ({
+    value: firstText(
+      list[i]?.value,
+      list[i]?.pct,
+      data?.[`percent_${i + 1}`],
+      data?.[`percentage_${i + 1}`],
+      DEFAULT_GAUGES[i].value,
+    ),
+    label: firstText(
+      list[i]?.label,
+      list[i]?.heading,
+      list[i]?.text,
+      data?.[`percent_${i + 1}_text`],
+      data?.[`percentage_${i + 1}_text`],
+      DEFAULT_GAUGES[i].label,
+    ),
   }));
 };
 
 const AboutSection = ({ data }) => {
-  const eyebrow = data?.eyebrow || 'ABOUT US';
-  const heading = data?.heading || 'Why will you choose our?';
-  const subheading = data?.subheading || 'Our agency can only be as strong as our people & because of this, our team have designed game changing products.';
-  const text = data?.text || "Intime is a design studio founded in London. Nowadays, we've grown and expanded our services, and have become a multinational firm, offering a variety of services and solutions Worldwide.";
-  const imgUrl = getLocalImg(data?.image_url || data?.image || data?.img || images.intime04);
-  const expYears = data?.experience_years || data?.years || '10+';
-  const expLabel = data?.experience_label || 'Years of Experience';
+  const eyebrow = firstText(data?.eyebrow) || 'ABOUT US';
+  const heading = firstText(data?.heading) || 'Why will you choose our?';
+  const subheading = firstText(data?.subheading) || 'Our agency can only be as strong as our people & because of this, our team have designed game changing products.';
+  const text = firstText(data?.text) || "Intime is a design studio founded in London. Nowadays, we've grown and expanded our services, and have become a multinational firm, offering a variety of services and solutions Worldwide.";
+  const rawImg = firstText(data?.image_url, data?.image, data?.img) || images.intime04;
+  const imgUrl = getLocalImg(rawImg);
+  const expYears = firstText(data?.experience_years, data?.red_box_number, data?.years) || '10+';
+  const expLabel = firstText(data?.experience_label, data?.red_box_text) || 'Years of Experience';
   const gauges = resolveGauges(data);
 
   return (
@@ -42,21 +62,18 @@ const AboutSection = ({ data }) => {
           </p>
 
           <div className="flex items-center gap-10">
-            {gauges.map((gauge, i) => {
-              const value = gauge.value || gauge.pct || DEFAULT_GAUGES[i]?.value;
-              const label = gauge.label || gauge.heading || DEFAULT_GAUGES[i]?.label;
-              return (
-                <div key={`${label}-${i}`} className="flex items-center gap-4">
-                  <span className="circular-gauge">{value}</span>
-                  <span className="text-sm font-semibold text-[#0B1B3D] max-w-[110px]">{label}</span>
-                </div>
-              );
-            })}
+            {gauges.map((gauge, i) => (
+              <div key={`about-gauge-${i}`} className="flex items-center gap-4">
+                <span className="circular-gauge">{gauge.value}</span>
+                <span className="text-sm font-semibold text-[#0B1B3D] max-w-[110px]">{gauge.label}</span>
+              </div>
+            ))}
           </div>
         </div>
 
         <div className="relative">
           <img
+            key={imgUrl}
             {...imgFallback(imgUrl)}
             src={imgUrl}
             alt={heading}
