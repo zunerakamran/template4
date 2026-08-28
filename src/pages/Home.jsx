@@ -104,9 +104,10 @@ const Home = () => {
         setSectionsMap(prev => {
           const next = { ...prev, [sectionKey]: content, [key]: content };
           if (key.includes('about')) {
-            next.aboutsection = content;
-            next.about = content;
-            next.aboutus = content;
+            const merged = { ...(prev.aboutsection || prev.about || prev.aboutus || {}), ...content };
+            next.aboutsection = merged;
+            next.about = merged;
+            next.aboutus = merged;
           }
           return next;
         });

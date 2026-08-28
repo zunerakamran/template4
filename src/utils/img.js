@@ -68,15 +68,21 @@ if (images && typeof images === 'object') {
 export const getLocalImg = (url) => {
   if (!url) return images.intime08 || images.bgSlider1;
 
+  if (typeof url === 'object') {
+    const nested = url.url || url.path || url.relative_url || url.src || url.image_url || url.image || url.img;
+    if (nested) return getLocalImg(nested);
+    return images.intime08 || images.bgSlider1;
+  }
+
   if (typeof url === 'string') {
+    if (url.startsWith('data:') || url.startsWith('blob:')) {
+      return url;
+    }
+
     if (url.includes('unsplash.com')) {
       if (url.includes('photo-1551836022')) return images.bgSlider1 || images.intime08;
       if (url.includes('photo-1560472354')) return images.bgSlider2 || images.intime12;
       if (url.includes('photo-1486406146')) return images.bgSlider3 || images.intime15;
-      return images.bgSlider1 || images.intime08;
-    }
-
-    if (url.startsWith('data:') || url.startsWith('blob:')) {
       return url;
     }
 
@@ -97,7 +103,7 @@ export const getLocalImg = (url) => {
     if (filenameMap[noExt.replace(/-/g, '')]) return filenameMap[noExt.replace(/-/g, '')];
 
     if (isUploadPath(url)) return toUploadsUrl(url);
-    if (isAbsoluteOrInline(url) || url.startsWith('/')) return url;
+    if (isAbsoluteOrInline(url) || url.startsWith('/')) return isUploadPath(url) ? toUploadsUrl(url) : url;
   }
 
   return images.intime08 || images.bgSlider1;
@@ -105,7 +111,7 @@ export const getLocalImg = (url) => {
 
 const isKeptPreviewSrc = (url) =>
   typeof url === 'string' &&
-  (/^(data:|blob:)/i.test(url) || isUploadPath(url));
+  (/^(data:|blob:|https?:)/i.test(url) || isUploadPath(url));
 
 export const imgFallback = (fallbackUrl) => ({
   onError: (e) => {
