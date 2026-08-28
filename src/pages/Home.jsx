@@ -71,7 +71,7 @@ const Home = () => {
     // disappear after a few milliseconds.  Skip the fetch to prevent this.
     if (targetSection) return;
 
-    publicApi.get('/pages/home', {
+    publicApi.get('', {
       params: { advisor_id: CONFIG.ADVISOR_ID ?? 6 },
       headers: { 'Cache-Control': 'no-cache' },
     })
