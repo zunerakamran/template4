@@ -113,15 +113,15 @@
     ]
   },
   "Portfolio Section": {
-    "eyebrow": "COMPLETED PROJECTS",
+    "subheading": "COMPLETED PROJECTS",
     "heading": "You can check our projects as inspirations.",
     "items": [
-      { "title": "Market Expansion", "cat": "Business Strategy", "image_url": "intime-12.jpg" },
-      { "title": "Business Growth", "cat": "Investment", "image_url": "intime-11.jpg" },
-      { "title": "Tax Management", "cat": "Tax Consulting", "image_url": "intime-08.jpg" },
-      { "title": "Investment Policy", "cat": "Business Strategy", "image_url": "intime-10.jpg" },
-      { "title": "Manage Investment", "cat": "Investment", "image_url": "intime-04.jpg" },
-      { "title": "Financial Advices", "cat": "Tax Consulting", "image_url": "intime-01.jpg" }
+      { "heading": "Market Expansion", "category": "Business Strategy", "image_url": "intime-12.jpg", "button_text": "Read more", "button_url": "#portfolio" },
+      { "heading": "Business Growth", "category": "Investment", "image_url": "intime-11.jpg", "button_text": "Read more", "button_url": "#portfolio" },
+      { "heading": "Tax Management", "category": "Tax Consulting", "image_url": "intime-08.jpg", "button_text": "Read more", "button_url": "#portfolio" },
+      { "heading": "Investment Policy", "category": "Business Strategy", "image_url": "intime-10.jpg", "button_text": "Read more", "button_url": "#portfolio" },
+      { "heading": "Manage Investment", "category": "Investment", "image_url": "intime-04.jpg", "button_text": "Read more", "button_url": "#portfolio" },
+      { "heading": "Financial Advices", "category": "Tax Consulting", "image_url": "intime-01.jpg", "button_text": "Read more", "button_url": "#portfolio" }
     ]
   },
   "Branches and Appointment": {
