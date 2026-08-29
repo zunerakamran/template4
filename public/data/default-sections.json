@@ -99,17 +99,17 @@
     ]
   },
   "Annual Progression": {
-    "eyebrow": "ANNUAL PROGRESSION",
+    "subheading": "ANNUAL PROGRESSION",
     "heading": "Our Business Growth is Really Incredible!",
-    "subheading": "We love what we do and we do it with passion. We value the experimentation, the reformation of the message, and the smart incentives.",
+    "text": "We love what we do and we do it with passion. We value the experimentation, the reformation of the message, and the smart incentives.",
     "bars": [
       { "label": "Business growth", "year": "2018", "pct": 70 },
       { "label": "Investment growth", "year": "2019", "pct": 80 },
       { "label": "Financial growth", "year": "2020", "pct": 90 }
     ],
     "highlights": [
-      { "title": "Risk Free", "text": "We offer risk free business for tension free life." },
-      { "title": "Business Growth", "text": "We ensure the business growth without conditions." }
+      { "icon": "shield-alt", "heading": "Risk Free", "text": "We offer risk free business for tension free life." },
+      { "icon": "chart-line", "heading": "Business Growth", "text": "We ensure the business growth without conditions." }
     ]
   },
   "Portfolio Section": {

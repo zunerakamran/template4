@@ -69,6 +69,8 @@ const Home = () => {
   const isHistoryPreview = targetSection === 'companyhistory' || targetSection === 'history' || targetSection.includes('history') || targetSection.includes('companyhistory');
   const featuredServicesData = sectionsMap['featuredservices'] || sectionsMap['services'];
   const isFeaturedServicesPreview = targetSection === 'featuredservices' || targetSection === 'services' || targetSection.includes('featuredservices');
+  const annualProgressionData = sectionsMap['annualprogression'] || sectionsMap['progression'] || sectionsMap['annual'];
+  const isAnnualProgressionPreview = targetSection === 'annualprogression' || targetSection === 'progression' || targetSection.includes('annual');
 
   useEffect(() => {
     // ── Skip API fetch in iframe preview mode ─────────────────────────────────
@@ -124,6 +126,12 @@ const Home = () => {
             next.featuredservices = merged;
             next.services = merged;
           }
+          if (key.includes('annual') || key === 'progression' || key === 'annualprogression') {
+            const merged = { ...(prev.annualprogression || prev.progression || prev.annual || {}), ...content };
+            next.annualprogression = merged;
+            next.progression = merged;
+            next.annual = merged;
+          }
           return next;
         });
       }
@@ -152,7 +160,7 @@ const Home = () => {
         { isAboutPreview && <AboutSection data={aboutData} /> }
         { isHistoryPreview && <CompanyHistory data={companyHistoryData} /> }
         { isFeaturedServicesPreview && <FeaturedServices data={featuredServicesData} /> }
-        { (targetSection.includes('annual') || targetSection.includes('progression')) && <AnnualProgression data={sectionsMap['annualprogression'] || sectionsMap['progression']} /> }
+        { isAnnualProgressionPreview && <AnnualProgression data={annualProgressionData} /> }
         { targetSection.includes('portfolio') && <PortfolioSection data={sectionsMap['portfoliosection'] || sectionsMap['portfolio']} /> }
         { (targetSection.includes('branch') || targetSection.includes('appointment')) && <BranchesAndAppointment data={sectionsMap['branchesandappointment'] || sectionsMap['branches']} /> }
         { (targetSection.includes('stat') || targetSection.includes('counter')) && <CounterStats data={sectionsMap['counterstats'] || sectionsMap['stats']} /> }
@@ -173,7 +181,7 @@ const Home = () => {
         <AboutSection data={aboutData} />
         <CompanyHistory data={companyHistoryData} />
         <FeaturedServices data={featuredServicesData} />
-        <AnnualProgression data={sectionsMap['annualprogression'] || sectionsMap['progression']} />
+        <AnnualProgression data={annualProgressionData} />
         <PortfolioSection data={sectionsMap['portfoliosection'] || sectionsMap['portfolio']} />
         <BranchesAndAppointment data={sectionsMap['branchesandappointment'] || sectionsMap['branches']} />
         <CounterStats data={sectionsMap['counterstats'] || sectionsMap['stats']} />
