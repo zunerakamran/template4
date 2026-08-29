@@ -58,7 +58,7 @@ const HeroSlider = ({ data, ready = false }) => {
     (Array.isArray(data?.slides) && data.slides.length > 0) ||
     data?.heading || data?.eyebrow || data?.subheading || data?.image_url || data?.bg
   );
-  const waiting = !ready && !hasApiData;
+  const waiting = !ready && !hasApiData && !isPreviewFrame;
   const slides = waiting ? [] : resolveSlides(data);
 
   const goTo = (idx) => {
@@ -80,14 +80,7 @@ const HeroSlider = ({ data, ready = false }) => {
   }, [current, slides.length, isPreviewFrame]);
 
   if (waiting) {
-    return (
-      <section
-        id="hero"
-        className="relative w-full overflow-hidden bg-[#0B1B3D]"
-        style={{ minHeight: '680px' }}
-        aria-busy="true"
-      />
-    );
+    return null;
   }
 
   const slide = slides[current];

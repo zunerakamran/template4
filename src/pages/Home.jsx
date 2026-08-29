@@ -96,7 +96,7 @@ const isVisibleSection = (visibility, keys) => {
 
   const explicit = list.filter((key) => Object.prototype.hasOwnProperty.call(visibility, key));
   if (explicit.length) {
-    return explicit.some((key) => visibility[key] === true);
+    return explicit.some((key) => visibility[key] !== false);
   }
 
   return false;
@@ -276,44 +276,52 @@ const Home = () => {
     <div className="min-h-screen bg-white text-gray-800 selection:bg-[#C8102E] selection:text-white">
       <Header data={sectionsMap['header']} />
       <main>
-        {isVisibleSection(sectionVisibility, ['heroslider', 'hero']) && (
-          <HeroSlider data={heroData} ready={heroReady} />
-        )}
-        {isVisibleSection(sectionVisibility, ['whatwedo', 'featurescarousel', 'features']) && (
-          <WhatWeDo data={whatWeDoData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['aboutsection', 'about', 'aboutus']) && (
-          <AboutSection data={aboutData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['companyhistory', 'history', 'ourcompanyhistory']) && (
-          <CompanyHistory data={companyHistoryData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['featuredservices', 'services']) && (
-          <FeaturedServices data={featuredServicesData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['annualprogression', 'progression', 'annual']) && (
-          <AnnualProgression data={annualProgressionData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['portfoliosection', 'portfolio']) && (
-          <PortfolioSection data={portfolioData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['branchesandappointment', 'branches', 'appointment']) && (
-          <BranchesAndAppointment data={branchesData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['counterstats', 'stats']) && (
-          <CounterStats data={counterStatsData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['testimonialscarousel', 'testimonials']) && (
-          <TestimonialsCarousel data={testimonialsData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['latestnews', 'news']) && (
-          <LatestNews data={latestNewsData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['clientlogos']) && (
-          <ClientLogos data={clientLogosData} />
-        )}
-        {isVisibleSection(sectionVisibility, ['ctabanner', 'cta']) && (
-          <CtaBanner data={ctaBannerData} />
+        {!contentReady ? (
+          <div className="min-h-[320px] flex items-center justify-center text-gray-400 text-sm">
+            Loading site content…
+          </div>
+        ) : (
+          <>
+            {isVisibleSection(sectionVisibility, ['heroslider', 'hero']) && (
+              <HeroSlider data={heroData} ready />
+            )}
+            {isVisibleSection(sectionVisibility, ['whatwedo', 'featurescarousel', 'features']) && (
+              <WhatWeDo data={whatWeDoData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['aboutsection', 'about', 'aboutus']) && (
+              <AboutSection data={aboutData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['companyhistory', 'history', 'ourcompanyhistory']) && (
+              <CompanyHistory data={companyHistoryData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['featuredservices', 'services']) && (
+              <FeaturedServices data={featuredServicesData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['annualprogression', 'progression', 'annual']) && (
+              <AnnualProgression data={annualProgressionData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['portfoliosection', 'portfolio']) && (
+              <PortfolioSection data={portfolioData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['branchesandappointment', 'branches', 'appointment']) && (
+              <BranchesAndAppointment data={branchesData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['counterstats', 'stats']) && (
+              <CounterStats data={counterStatsData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['testimonialscarousel', 'testimonials']) && (
+              <TestimonialsCarousel data={testimonialsData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['latestnews', 'news']) && (
+              <LatestNews data={latestNewsData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['clientlogos']) && (
+              <ClientLogos data={clientLogosData} />
+            )}
+            {isVisibleSection(sectionVisibility, ['ctabanner', 'cta']) && (
+              <CtaBanner data={ctaBannerData} />
+            )}
+          </>
         )}
       </main>
       <Footer data={sectionsMap['footer']} />
