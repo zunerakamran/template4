@@ -101,14 +101,9 @@ const resolveBoxes = (data) => {
 };
 
 const FeaturedServices = ({ data }) => {
-  const legacyBodyAsText = Boolean(data?.eyebrow && data?.subheading && !data?.text && !data?.boxes);
-  const subheading = legacyBodyAsText
-    ? firstText(data?.eyebrow)
-    : (firstText(data?.subheading, data?.eyebrow) || 'FEATURED SERVICES');
+  const subheading = firstText(data?.subheading) || 'FEATURED SERVICES';
   const heading = firstText(data?.heading) || 'We help to get Solutions!';
-  const text = legacyBodyAsText
-    ? firstText(data?.subheading)
-    : (firstText(data?.text) || DEFAULT_TEXT);
+  const text = firstText(data?.text) || DEFAULT_TEXT;
   const boxes = resolveBoxes(data);
 
   return (
