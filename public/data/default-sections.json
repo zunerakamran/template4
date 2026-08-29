@@ -142,13 +142,11 @@
     ]
   },
   "Counter Stats": {
-    "heading": "Proven Results in Numbers",
-    "subheading": "$2.5B+ Assets Under Advisory • 99% Client Retention • 25+ Global Advisors",
     "stats": [
-      { "value": "2,800+", "label": "Active Clients", "sub": "Empowering businesses globally with passion and proven expertise." },
-      { "value": "1,670+", "label": "5-Star Reviews", "sub": "Top customer satisfaction and unmatched quality of service." },
-      { "value": "106+", "label": "Team Members", "sub": "Dedicated specialists and leaders driving continuous innovation." },
-      { "value": "99.8%", "label": "Success Rate", "sub": "Consistently delivering top-tier performance and business growth." }
+      { "icon": "users", "value": "2,800+", "label": "Active Clients", "sub": "Empowering businesses globally with passion and proven expertise." },
+      { "icon": "star", "value": "1,670+", "label": "5-Star Reviews", "sub": "Top customer satisfaction and unmatched quality of service." },
+      { "icon": "user-tie", "value": "106+", "label": "Team Members", "sub": "Dedicated specialists and leaders driving continuous innovation." },
+      { "icon": "award", "value": "99.8%", "label": "Success Rate", "sub": "Consistently delivering top-tier performance and business growth." }
     ]
   },
   "Testimonials Carousel": {

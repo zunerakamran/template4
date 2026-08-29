@@ -75,6 +75,8 @@ const Home = () => {
   const isPortfolioPreview = targetSection === 'portfoliosection' || targetSection === 'portfolio' || targetSection.includes('portfolio');
   const branchesData = sectionsMap['branchesandappointment'] || sectionsMap['branches'] || sectionsMap['appointment'];
   const isBranchesPreview = targetSection === 'branchesandappointment' || targetSection.includes('branch') || targetSection.includes('appointment');
+  const counterStatsData = sectionsMap['counterstats'] || sectionsMap['stats'];
+  const isCounterStatsPreview = targetSection === 'counterstats' || targetSection === 'stats' || targetSection.includes('counter') || targetSection.includes('stat');
 
   useEffect(() => {
     // ── Skip API fetch in iframe preview mode ─────────────────────────────────
@@ -147,6 +149,11 @@ const Home = () => {
             next.branches = merged;
             next.appointment = merged;
           }
+          if (key.includes('counter') || key === 'stats' || key === 'counterstats') {
+            const merged = { ...(prev.counterstats || prev.stats || {}), ...content };
+            next.counterstats = merged;
+            next.stats = merged;
+          }
           return next;
         });
       }
@@ -178,7 +185,7 @@ const Home = () => {
         { isAnnualProgressionPreview && <AnnualProgression data={annualProgressionData} /> }
         { isPortfolioPreview && <PortfolioSection data={portfolioData} /> }
         { isBranchesPreview && <BranchesAndAppointment data={branchesData} /> }
-        { (targetSection.includes('stat') || targetSection.includes('counter')) && <CounterStats data={sectionsMap['counterstats'] || sectionsMap['stats']} /> }
+        { isCounterStatsPreview && <CounterStats data={counterStatsData} /> }
         { (targetSection.includes('testimonial') || targetSection.includes('testimonials')) && <TestimonialsCarousel data={sectionsMap['testimonialscarousel'] || sectionsMap['testimonials']} /> }
         { (targetSection.includes('news') || targetSection.includes('latest')) && <LatestNews data={sectionsMap['latestnews'] || sectionsMap['news']} /> }
         { targetSection.includes('logo') && <ClientLogos data={sectionsMap['clientlogos']} /> }
@@ -199,7 +206,7 @@ const Home = () => {
         <AnnualProgression data={annualProgressionData} />
         <PortfolioSection data={portfolioData} />
         <BranchesAndAppointment data={branchesData} />
-        <CounterStats data={sectionsMap['counterstats'] || sectionsMap['stats']} />
+        <CounterStats data={counterStatsData} />
         <TestimonialsCarousel data={sectionsMap['testimonialscarousel'] || sectionsMap['testimonials']} />
         <LatestNews data={sectionsMap['latestnews'] || sectionsMap['news']} />
         <ClientLogos data={sectionsMap['clientlogos']} />
