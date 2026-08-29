@@ -55,6 +55,7 @@ function canonicalSectionName($name) {
         'header' => 'Header',
         'hero' => 'Hero Slider',
         'heroslider' => 'Hero Slider',
+        'herosection' => 'Hero Slider',
         'features' => 'What we do',
         'featurescarousel' => 'What we do',
         'whatwedo' => 'What we do',
@@ -135,6 +136,36 @@ function rowIsVisible(array $row) {
 
 function sectionKeyFromName($name) {
     return strtolower(preg_replace('/[^a-z0-9]/i', '', (string)$name));
+}
+
+function canonicalSectionKey($name) {
+    $key = sectionKeyFromName(canonicalSectionName($name));
+    $map = [
+        'herosection' => 'heroslider',
+        'hero' => 'heroslider',
+        'features' => 'whatwedo',
+        'featurescarousel' => 'whatwedo',
+        'about' => 'aboutsection',
+        'aboutus' => 'aboutsection',
+        'history' => 'companyhistory',
+        'services' => 'featuredservices',
+        'annual' => 'annualprogression',
+        'progression' => 'annualprogression',
+        'portfolio' => 'portfoliosection',
+        'branches' => 'branchesandappointment',
+        'branch' => 'branchesandappointment',
+        'appointment' => 'branchesandappointment',
+        'stats' => 'counterstats',
+        'stat' => 'counterstats',
+        'testimonials' => 'testimonialscarousel',
+        'testimonial' => 'testimonialscarousel',
+        'news' => 'latestnews',
+        'logos' => 'clientlogos',
+        'logo' => 'clientlogos',
+        'cta' => 'ctabanner',
+        'banner' => 'ctabanner',
+    ];
+    return $map[$key] ?? $key;
 }
 
 /**
@@ -377,7 +408,7 @@ function rowsToSections(array $rows) {
         $visible = rowIsVisible($row);
         $cnt = decodeSectionContent($row['content'] ?? null);
         $label = !empty($row['display_name']) ? $row['display_name'] : $name;
-        $key = sectionKeyFromName($name);
+        $key = canonicalSectionKey($name);
 
         $list[] = [
             'name'         => $name,
@@ -748,7 +779,7 @@ if (count($result['sections_list']) === 0 && empty($result['sections']) && file_
             }
             $list[] = [
                 'name'         => $name,
-                'section_key'  => sectionKeyFromName($name),
+                'section_key'  => canonicalSectionKey($name),
                 'display_name' => $sectionMeta['display_name'] ?? $name,
                 'is_visible'   => $isVisible,
                 'content'      => $isVisible ? $cnt : null,

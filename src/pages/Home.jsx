@@ -16,6 +16,7 @@ import CtaBanner from '../components/Home/CtaBanner';
 import Footer from '../components/Footer/Footer';
 import { publicApi } from '../api/axios';
 import CONFIG from '../../config.js';
+import { sectionKey, canonicalSectionKey, VISIBILITY_ALIASES, applyVisibilityAliases } from '../utils/sectionKeys';
 
 const parseContent = (contentStr) => {
   if (!contentStr) return null;
@@ -27,36 +28,6 @@ const parseContent = (contentStr) => {
   }
 };
 
-const sectionKey = (name) => (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-
-const VISIBILITY_ALIASES = {
-  heroslider: ['heroslider', 'hero'],
-  whatwedo: ['whatwedo', 'featurescarousel', 'features'],
-  aboutsection: ['aboutsection', 'about', 'aboutus'],
-  companyhistory: ['companyhistory', 'history', 'ourcompanyhistory'],
-  featuredservices: ['featuredservices', 'services'],
-  annualprogression: ['annualprogression', 'progression', 'annual'],
-  portfoliosection: ['portfoliosection', 'portfolio'],
-  branchesandappointment: ['branchesandappointment', 'branches', 'appointment'],
-  counterstats: ['counterstats', 'stats'],
-  testimonialscarousel: ['testimonialscarousel', 'testimonials'],
-  latestnews: ['latestnews', 'news'],
-  clientlogos: ['clientlogos'],
-  ctabanner: ['ctabanner', 'cta'],
-};
-
-const applyVisibilityAliases = (visibility) => {
-  Object.values(VISIBILITY_ALIASES).forEach((aliases) => {
-    const defined = aliases.find((alias) => Object.prototype.hasOwnProperty.call(visibility, alias));
-    if (defined === undefined) return;
-    const state = visibility[defined];
-    aliases.forEach((alias) => {
-      visibility[alias] = state;
-    });
-  });
-  return visibility;
-};
-
 const buildSectionsPayload = (payload) => {
   const map = {};
   const visibility = {};
@@ -65,7 +36,7 @@ const buildSectionsPayload = (payload) => {
   if (Array.isArray(list) && list.length) {
     list.forEach((sec) => {
       if (!sec?.name) return;
-      const key = sectionKey(sec.section_key || sec.name);
+      const key = canonicalSectionKey(sec.section_key || sec.name);
       const visible = sec.is_visible !== false && sec.is_visible !== 0 && sec.is_visible !== '0';
       visibility[key] = visible;
       if (!visible) return;
@@ -79,7 +50,7 @@ const buildSectionsPayload = (payload) => {
   const keyed = payload?.sections;
   if (keyed && typeof keyed === 'object' && !Array.isArray(keyed)) {
     Object.keys(keyed).forEach((name) => {
-      const key = sectionKey(name);
+      const key = canonicalSectionKey(name);
       visibility[key] = true;
       map[key] = parseContent(keyed[name]);
     });
@@ -108,7 +79,7 @@ const Home = () => {
   const [contentReady, setContentReady] = useState(false);
   const searchParams = new URLSearchParams(window.location.search);
   const targetSection = (searchParams.get('section') || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-  const heroData = sectionsMap['heroslider'] || sectionsMap['hero'];
+  const heroData = sectionsMap['heroslider'] || sectionsMap['hero'] || sectionsMap['herosection'];
   const heroReady = contentReady || Boolean(heroData);
   const whatWeDoData = sectionsMap['whatwedo'] || sectionsMap['featurescarousel'] || sectionsMap['features'];
   const isWhatWeDoPreview = targetSection === 'whatwedo' || targetSection === 'featurescarousel' || targetSection === 'features';
@@ -255,7 +226,7 @@ const Home = () => {
   if (targetSection) {
     return (
       <div className="bg-white min-h-screen p-2 font-sans selection:bg-[#C8102E] selection:text-white">
-        { (targetSection.includes('hero') || targetSection.includes('slider')) && <HeroSlider data={heroData} ready={heroReady} /> }
+        { (targetSection.includes('hero') || targetSection.includes('slider') || targetSection === 'herosection') && <HeroSlider data={heroData} ready={heroReady} /> }
         { isWhatWeDoPreview && <WhatWeDo data={whatWeDoData} /> }
         { isAboutPreview && <AboutSection data={aboutData} /> }
         { isHistoryPreview && <CompanyHistory data={companyHistoryData} /> }
@@ -282,43 +253,43 @@ const Home = () => {
           </div>
         ) : (
           <>
-            {isVisibleSection(sectionVisibility, ['heroslider', 'hero']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.heroslider) && (
               <HeroSlider data={heroData} ready />
             )}
-            {isVisibleSection(sectionVisibility, ['whatwedo', 'featurescarousel', 'features']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.whatwedo) && (
               <WhatWeDo data={whatWeDoData} />
             )}
-            {isVisibleSection(sectionVisibility, ['aboutsection', 'about', 'aboutus']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.aboutsection) && (
               <AboutSection data={aboutData} />
             )}
-            {isVisibleSection(sectionVisibility, ['companyhistory', 'history', 'ourcompanyhistory']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.companyhistory) && (
               <CompanyHistory data={companyHistoryData} />
             )}
-            {isVisibleSection(sectionVisibility, ['featuredservices', 'services']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.featuredservices) && (
               <FeaturedServices data={featuredServicesData} />
             )}
-            {isVisibleSection(sectionVisibility, ['annualprogression', 'progression', 'annual']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.annualprogression) && (
               <AnnualProgression data={annualProgressionData} />
             )}
-            {isVisibleSection(sectionVisibility, ['portfoliosection', 'portfolio']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.portfoliosection) && (
               <PortfolioSection data={portfolioData} />
             )}
-            {isVisibleSection(sectionVisibility, ['branchesandappointment', 'branches', 'appointment']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.branchesandappointment) && (
               <BranchesAndAppointment data={branchesData} />
             )}
-            {isVisibleSection(sectionVisibility, ['counterstats', 'stats']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.counterstats) && (
               <CounterStats data={counterStatsData} />
             )}
-            {isVisibleSection(sectionVisibility, ['testimonialscarousel', 'testimonials']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.testimonialscarousel) && (
               <TestimonialsCarousel data={testimonialsData} />
             )}
-            {isVisibleSection(sectionVisibility, ['latestnews', 'news']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.latestnews) && (
               <LatestNews data={latestNewsData} />
             )}
-            {isVisibleSection(sectionVisibility, ['clientlogos']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.clientlogos) && (
               <ClientLogos data={clientLogosData} />
             )}
-            {isVisibleSection(sectionVisibility, ['ctabanner', 'cta']) && (
+            {isVisibleSection(sectionVisibility, VISIBILITY_ALIASES.ctabanner) && (
               <CtaBanner data={ctaBannerData} />
             )}
           </>
