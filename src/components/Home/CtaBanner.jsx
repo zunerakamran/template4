@@ -1,11 +1,20 @@
 import React from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 
+const firstText = (...vals) => {
+  for (const v of vals) {
+    if (v == null) continue;
+    if (typeof v === 'object') continue;
+    if (String(v).trim() !== '') return v;
+  }
+  return '';
+};
+
 const CtaBanner = ({ data }) => {
-  const heading = data?.heading || 'Looking for the Best Business Consulting?';
-  const subheading = data?.subheading || 'As a web crawler expert, we will help to organize.';
-  const btnText = data?.button_text || 'GET A QUOTE';
-  const btnUrl = data?.button_url || '#appointment';
+  const heading = firstText(data?.heading, data?.title, 'Looking for the Best Business Consulting?');
+  const subheading = firstText(data?.subheading, data?.text, data?.desc, data?.description, 'As a web crawler expert, we will help to organize.');
+  const btnText = firstText(data?.button_text, data?.btn_text, data?.button, 'GET A QUOTE');
+  const btnUrl = firstText(data?.button_url, data?.btn_url, data?.url, data?.link, '#appointment');
 
   return (
     <section className="bg-[#0B1B3D] py-16">

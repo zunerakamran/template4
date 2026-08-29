@@ -83,6 +83,8 @@ const Home = () => {
   const isLatestNewsPreview = targetSection === 'latestnews' || targetSection === 'news' || targetSection.includes('latestnews');
   const clientLogosData = sectionsMap['clientlogos'];
   const isClientLogosPreview = targetSection === 'clientlogos' || targetSection.includes('clientlogo');
+  const ctaBannerData = sectionsMap['ctabanner'] || sectionsMap['cta'];
+  const isCtaBannerPreview = targetSection === 'ctabanner' || targetSection === 'cta' || targetSection.includes('ctabanner');
 
   useEffect(() => {
     // ── Skip API fetch in iframe preview mode ─────────────────────────────────
@@ -174,6 +176,11 @@ const Home = () => {
             const merged = { ...(prev.clientlogos || {}), ...content };
             next.clientlogos = merged;
           }
+          if (key.includes('ctabanner') || key === 'cta' || (key.includes('cta') && key.includes('banner'))) {
+            const merged = { ...(prev.ctabanner || prev.cta || {}), ...content };
+            next.ctabanner = merged;
+            next.cta = merged;
+          }
           return next;
         });
       }
@@ -209,7 +216,7 @@ const Home = () => {
         { isTestimonialsPreview && <TestimonialsCarousel data={testimonialsData} /> }
         { isLatestNewsPreview && <LatestNews data={latestNewsData} /> }
         { isClientLogosPreview && <ClientLogos data={clientLogosData} /> }
-        { (targetSection.includes('cta') || targetSection.includes('banner')) && <CtaBanner data={sectionsMap['ctabanner'] || sectionsMap['cta']} /> }
+        { isCtaBannerPreview && <CtaBanner data={ctaBannerData} /> }
       </div>
     );
   }
@@ -230,7 +237,7 @@ const Home = () => {
         <TestimonialsCarousel data={testimonialsData} />
         <LatestNews data={latestNewsData} />
         <ClientLogos data={clientLogosData} />
-        <CtaBanner data={sectionsMap['ctabanner'] || sectionsMap['cta']} />
+        <CtaBanner data={ctaBannerData} />
       </main>
       <Footer data={sectionsMap['footer']} />
     </div>
