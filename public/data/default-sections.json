@@ -125,9 +125,9 @@
     ]
   },
   "Branches and Appointment": {
-    "eyebrow": "GET IN TOUCH",
+    "subheading": "GET IN TOUCH",
     "heading": "We are Connected All Time to Help Your Business!",
-    "subheading": "We understand the importance of approaching each work integrally and believe in the power of simple and easy communication.",
+    "text": "We understand the importance of approaching each work integrally and believe in the power of simple and easy communication.",
     "form_heading": "Book an appionment",
     "button_text": "SEND YOUR MESSAGE",
     "branches_label": "Main Branches:",
