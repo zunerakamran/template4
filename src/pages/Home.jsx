@@ -81,6 +81,8 @@ const Home = () => {
   const isTestimonialsPreview = targetSection === 'testimonialscarousel' || targetSection === 'testimonials' || targetSection.includes('testimonial');
   const latestNewsData = sectionsMap['latestnews'] || sectionsMap['news'];
   const isLatestNewsPreview = targetSection === 'latestnews' || targetSection === 'news' || targetSection.includes('latestnews');
+  const clientLogosData = sectionsMap['clientlogos'];
+  const isClientLogosPreview = targetSection === 'clientlogos' || targetSection.includes('clientlogo');
 
   useEffect(() => {
     // ── Skip API fetch in iframe preview mode ─────────────────────────────────
@@ -168,6 +170,10 @@ const Home = () => {
             next.latestnews = merged;
             next.news = merged;
           }
+          if (key.includes('clientlogo') || key === 'clientlogos') {
+            const merged = { ...(prev.clientlogos || {}), ...content };
+            next.clientlogos = merged;
+          }
           return next;
         });
       }
@@ -202,7 +208,7 @@ const Home = () => {
         { isCounterStatsPreview && <CounterStats data={counterStatsData} /> }
         { isTestimonialsPreview && <TestimonialsCarousel data={testimonialsData} /> }
         { isLatestNewsPreview && <LatestNews data={latestNewsData} /> }
-        { targetSection.includes('logo') && <ClientLogos data={sectionsMap['clientlogos']} /> }
+        { isClientLogosPreview && <ClientLogos data={clientLogosData} /> }
         { (targetSection.includes('cta') || targetSection.includes('banner')) && <CtaBanner data={sectionsMap['ctabanner'] || sectionsMap['cta']} /> }
       </div>
     );
@@ -223,7 +229,7 @@ const Home = () => {
         <CounterStats data={counterStatsData} />
         <TestimonialsCarousel data={testimonialsData} />
         <LatestNews data={latestNewsData} />
-        <ClientLogos data={sectionsMap['clientlogos']} />
+        <ClientLogos data={clientLogosData} />
         <CtaBanner data={sectionsMap['ctabanner'] || sectionsMap['cta']} />
       </main>
       <Footer data={sectionsMap['footer']} />

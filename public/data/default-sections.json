@@ -170,13 +170,12 @@
     ]
   },
   "Client Logos": {
-    "heading": "Trusted by Leading Institutions",
     "items": [
-      { "name": "slack" },
-      { "name": "Google" },
-      { "name": "envato" },
-      { "name": "Sketch" },
-      { "name": "Figma" }
+      { "name": "slack", "image_url": "" },
+      { "name": "Google", "image_url": "" },
+      { "name": "envato", "image_url": "" },
+      { "name": "Sketch", "image_url": "" },
+      { "name": "Figma", "image_url": "" }
     ]
   },
   "CTA Banner": {
