@@ -79,6 +79,8 @@ const Home = () => {
   const isCounterStatsPreview = targetSection === 'counterstats' || targetSection === 'stats' || targetSection.includes('counter') || targetSection.includes('stat');
   const testimonialsData = sectionsMap['testimonialscarousel'] || sectionsMap['testimonials'];
   const isTestimonialsPreview = targetSection === 'testimonialscarousel' || targetSection === 'testimonials' || targetSection.includes('testimonial');
+  const latestNewsData = sectionsMap['latestnews'] || sectionsMap['news'];
+  const isLatestNewsPreview = targetSection === 'latestnews' || targetSection === 'news' || targetSection.includes('latestnews');
 
   useEffect(() => {
     // ── Skip API fetch in iframe preview mode ─────────────────────────────────
@@ -161,6 +163,11 @@ const Home = () => {
             next.testimonialscarousel = merged;
             next.testimonials = merged;
           }
+          if (key.includes('latestnews') || key === 'news' || (key.includes('latest') && key.includes('news'))) {
+            const merged = { ...(prev.latestnews || prev.news || {}), ...content };
+            next.latestnews = merged;
+            next.news = merged;
+          }
           return next;
         });
       }
@@ -194,7 +201,7 @@ const Home = () => {
         { isBranchesPreview && <BranchesAndAppointment data={branchesData} /> }
         { isCounterStatsPreview && <CounterStats data={counterStatsData} /> }
         { isTestimonialsPreview && <TestimonialsCarousel data={testimonialsData} /> }
-        { (targetSection.includes('news') || targetSection.includes('latest')) && <LatestNews data={sectionsMap['latestnews'] || sectionsMap['news']} /> }
+        { isLatestNewsPreview && <LatestNews data={latestNewsData} /> }
         { targetSection.includes('logo') && <ClientLogos data={sectionsMap['clientlogos']} /> }
         { (targetSection.includes('cta') || targetSection.includes('banner')) && <CtaBanner data={sectionsMap['ctabanner'] || sectionsMap['cta']} /> }
       </div>
@@ -215,7 +222,7 @@ const Home = () => {
         <BranchesAndAppointment data={branchesData} />
         <CounterStats data={counterStatsData} />
         <TestimonialsCarousel data={testimonialsData} />
-        <LatestNews data={sectionsMap['latestnews'] || sectionsMap['news']} />
+        <LatestNews data={latestNewsData} />
         <ClientLogos data={sectionsMap['clientlogos']} />
         <CtaBanner data={sectionsMap['ctabanner'] || sectionsMap['cta']} />
       </main>

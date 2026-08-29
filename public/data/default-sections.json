@@ -164,9 +164,9 @@
     "eyebrow": "OUR LATEST NEWS",
     "heading": "Learn about our latest news from blog.",
     "items": [
-      { "date": "10", "month": "Nov, 20", "author": "John Doe", "cat": "Consulting", "title": "We would love to share a similar experience", "excerpt": "The theory was first published in 2008 a press released under the name of Cliff Arnall, who at the time was a tutor at the…", "image_url": "intime-03.jpg" },
-      { "date": "06", "month": "Nov, 20", "author": "John Doe", "cat": "HR Consulting", "title": "We glad to discuss your organisation situation.", "excerpt": "The theory was first published in 2008 a press released under the name of Cliff Arnall, who at the time was a tutor at the…", "image_url": "intime-02.jpg" },
-      { "date": "20", "month": "Oct, 20", "author": "John Doe", "cat": "Consulting", "title": "In this context our main approach was to build.", "excerpt": "The theory was first published in 2008 a press released under the name of Cliff Arnall, who at the time was a tutor at the…", "image_url": "intime-05.jpg" }
+      { "date": "10", "month": "Nov, 20", "author": "John Doe", "cat": "Consulting", "title": "We would love to share a similar experience", "excerpt": "The theory was first published in 2008 a press released under the name of Cliff Arnall, who at the time was a tutor at the…", "image_url": "intime-03.jpg", "button_text": "Read more", "button_url": "#news" },
+      { "date": "06", "month": "Nov, 20", "author": "John Doe", "cat": "HR Consulting", "title": "We glad to discuss your organisation situation.", "excerpt": "The theory was first published in 2008 a press released under the name of Cliff Arnall, who at the time was a tutor at the…", "image_url": "intime-02.jpg", "button_text": "Read more", "button_url": "#news" },
+      { "date": "20", "month": "Oct, 20", "author": "John Doe", "cat": "Consulting", "title": "In this context our main approach was to build.", "excerpt": "The theory was first published in 2008 a press released under the name of Cliff Arnall, who at the time was a tutor at the…", "image_url": "intime-05.jpg", "button_text": "Read more", "button_url": "#news" }
     ]
   },
   "Client Logos": {
