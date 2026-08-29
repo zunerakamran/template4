@@ -29,6 +29,34 @@ const parseContent = (contentStr) => {
 
 const sectionKey = (name) => (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
+const VISIBILITY_ALIASES = {
+  heroslider: ['heroslider', 'hero'],
+  whatwedo: ['whatwedo', 'featurescarousel', 'features'],
+  aboutsection: ['aboutsection', 'about', 'aboutus'],
+  companyhistory: ['companyhistory', 'history', 'ourcompanyhistory'],
+  featuredservices: ['featuredservices', 'services'],
+  annualprogression: ['annualprogression', 'progression', 'annual'],
+  portfoliosection: ['portfoliosection', 'portfolio'],
+  branchesandappointment: ['branchesandappointment', 'branches', 'appointment'],
+  counterstats: ['counterstats', 'stats'],
+  testimonialscarousel: ['testimonialscarousel', 'testimonials'],
+  latestnews: ['latestnews', 'news'],
+  clientlogos: ['clientlogos'],
+  ctabanner: ['ctabanner', 'cta'],
+};
+
+const applyVisibilityAliases = (visibility) => {
+  Object.values(VISIBILITY_ALIASES).forEach((aliases) => {
+    const defined = aliases.find((alias) => Object.prototype.hasOwnProperty.call(visibility, alias));
+    if (defined === undefined) return;
+    const state = visibility[defined];
+    aliases.forEach((alias) => {
+      visibility[alias] = state;
+    });
+  });
+  return visibility;
+};
+
 const buildSectionsPayload = (payload) => {
   const map = {};
   const visibility = {};
@@ -37,15 +65,15 @@ const buildSectionsPayload = (payload) => {
   if (Array.isArray(list) && list.length) {
     list.forEach((sec) => {
       if (!sec?.name) return;
-      const key = sectionKey(sec.name);
-      const visible = sec.is_visible !== false;
+      const key = sectionKey(sec.section_key || sec.name);
+      const visible = sec.is_visible !== false && sec.is_visible !== 0 && sec.is_visible !== '0';
       visibility[key] = visible;
       if (!visible) return;
       if (map[key] == null) {
         map[key] = parseContent(sec.content);
       }
     });
-    return { map, visibility };
+    return { map, visibility: applyVisibilityAliases(visibility) };
   }
 
   const keyed = payload?.sections;
@@ -55,6 +83,7 @@ const buildSectionsPayload = (payload) => {
       visibility[key] = true;
       map[key] = parseContent(keyed[name]);
     });
+    return { map, visibility: applyVisibilityAliases(visibility) };
   }
 
   return { map, visibility };
@@ -67,10 +96,9 @@ const isVisibleSection = (visibility, keys) => {
 
   const explicit = list.filter((key) => Object.prototype.hasOwnProperty.call(visibility, key));
   if (explicit.length) {
-    return explicit.some((key) => visibility[key] !== false);
+    return explicit.some((key) => visibility[key] === true);
   }
 
-  // Section absent from API payload after visibility data loaded → hidden
   return false;
 };
 

@@ -129,7 +129,62 @@ function ensureSectionMetaColumns(PDO $pdo) {
 function rowIsVisible(array $row) {
     if (!array_key_exists('is_visible', $row)) return true;
     $value = $row['is_visible'];
-    return $value === true || $value === 1 || $value === '1';
+    if ($value === null || $value === '') return true;
+    return !in_array($value, [false, 0, '0', 'false'], true);
+}
+
+function sectionKeyFromName($name) {
+    return strtolower(preg_replace('/[^a-z0-9]/i', '', (string)$name));
+}
+
+/**
+ * When advisor_id is set we fetch advisor + showcase rows. Prefer the advisor
+ * row for each section name so visibility edits are not overwritten by showcase.
+ */
+function dedupeSectionRows(array $rows, $advisorId = null) {
+    $grouped = [];
+    foreach ($rows as $row) {
+        $name = canonicalSectionName($row['name'] ?? '');
+        if ($name === '') continue;
+        $grouped[$name][] = $row;
+    }
+
+    $deduped = [];
+    foreach ($grouped as $name => $group) {
+        if (count($group) === 1) {
+            $deduped[] = $group[0];
+            continue;
+        }
+
+        $chosen = null;
+        if ($advisorId !== null && $advisorId !== '') {
+            foreach ($group as $row) {
+                $rowAdvisor = $row['advisor_id'] ?? null;
+                if ($rowAdvisor !== null && (string)$rowAdvisor === (string)$advisorId) {
+                    $chosen = $row;
+                    break;
+                }
+            }
+        }
+
+        if (!$chosen) {
+            foreach ($group as $row) {
+                if (!$chosen) {
+                    $chosen = $row;
+                    continue;
+                }
+                $chosenRank = sectionContentRank(decodeSectionContent($chosen['content'] ?? null));
+                $rowRank = sectionContentRank(decodeSectionContent($row['content'] ?? null));
+                if ($rowRank > $chosenRank) {
+                    $chosen = $row;
+                }
+            }
+        }
+
+        $deduped[] = $chosen;
+    }
+
+    return $deduped;
 }
 
 function loadSeedSections() {
@@ -313,8 +368,8 @@ function sectionContentRank($cnt) {
 
 function rowsToSections(array $rows) {
     $sections = [];
-    $listIndex = [];
     $list = [];
+
     foreach ($rows as $row) {
         $name = canonicalSectionName($row['name'] ?? '');
         if ($name === '') continue;
@@ -322,36 +377,25 @@ function rowsToSections(array $rows) {
         $visible = rowIsVisible($row);
         $cnt = decodeSectionContent($row['content'] ?? null);
         $label = !empty($row['display_name']) ? $row['display_name'] : $name;
+        $key = sectionKeyFromName($name);
 
-        if (!isset($listIndex[$name])) {
-            $listIndex[$name] = count($list);
-            $list[] = [
-                'name'         => $name,
-                'display_name' => $label,
-                'is_visible'   => $visible,
-                'content'      => $visible ? $cnt : null,
-            ];
-        } else {
-            $list[$listIndex[$name]]['display_name'] = $label;
-            $list[$listIndex[$name]]['is_visible'] = $visible;
-            if ($visible) {
-                $list[$listIndex[$name]]['content'] = $cnt;
-            }
-        }
+        $list[] = [
+            'name'         => $name,
+            'section_key'  => $key,
+            'display_name' => $label,
+            'is_visible'   => $visible,
+            'content'      => $visible ? $cnt : null,
+        ];
 
         if (!$visible) {
             continue;
         }
 
-        if (!isset($sections[$name])) {
+        if (!isset($sections[$name]) || sectionContentRank($cnt) > sectionContentRank($sections[$name])) {
             $sections[$name] = $cnt;
-            continue;
-        }
-        if (sectionContentRank($cnt) > sectionContentRank($sections[$name])) {
-            $sections[$name] = $cnt;
-            $list[$listIndex[$name]]['content'] = $cnt;
         }
     }
+
     return [$sections, $list];
 }
 
@@ -622,11 +666,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($name && $content !== null && $content !== '') {
                 $parsed = is_string($content) ? (json_decode($content, true) ?: $content) : $content;
                 $canonical = canonicalSectionName($name);
-                if ($isVisible) {
-                    $existing['sections'][$canonical] = $parsed;
-                } else {
-                    unset($existing['sections'][$canonical]);
-                }
+                $existing['sections'][$canonical] = $parsed;
                 $existing['sections_meta'][$canonical] = [
                     'display_name' => $displayName ?: $canonical,
                     'is_visible'   => $isVisible,
@@ -676,9 +716,10 @@ if ($pdo) {
     }
 
     try {
-        $rows = fetchSectionRows($pdo, $advisorId);
+        $dbRows = fetchSectionRows($pdo, $advisorId);
+        $rows = dedupeSectionRows($dbRows, $advisorId);
         [$result['sections'], $result['sections_list']] = rowsToSections($rows);
-        if (!empty($result['sections'])) {
+        if (count($dbRows) > 0) {
             $result['content_source'] = 'cpanel_sections';
         }
     } catch (Exception $e) {
@@ -686,7 +727,7 @@ if ($pdo) {
     }
 }
 
-if (empty($result['sections']) && file_exists($dataFile)) {
+if (count($result['sections_list']) === 0 && empty($result['sections']) && file_exists($dataFile)) {
     $fileData = json_decode(file_get_contents($dataFile), true) ?: [];
     if (!empty($fileData['primary_color'])) $result['primary_color'] = $fileData['primary_color'];
     if (!empty($fileData['secondary_color'])) $result['secondary_color'] = $fileData['secondary_color'];
@@ -700,17 +741,17 @@ if (empty($result['sections']) && file_exists($dataFile)) {
         foreach ($fileData['sections'] as $secName => $secContent) {
             $name = canonicalSectionName($secName);
             $sectionMeta = $meta[$name] ?? [];
-            $isVisible = !array_key_exists('is_visible', $sectionMeta) || (bool)$sectionMeta['is_visible'];
-            if (!$isVisible) {
-                continue;
-            }
+            $isVisible = !array_key_exists('is_visible', $sectionMeta) || !in_array($sectionMeta['is_visible'], [false, 0, '0', 'false'], true);
             $cnt = is_string($secContent) ? (json_decode($secContent, true) ?: $secContent) : $secContent;
-            $result['sections'][$name] = $cnt;
+            if ($isVisible) {
+                $result['sections'][$name] = $cnt;
+            }
             $list[] = [
                 'name'         => $name,
+                'section_key'  => sectionKeyFromName($name),
                 'display_name' => $sectionMeta['display_name'] ?? $name,
-                'is_visible'   => true,
-                'content'      => $cnt,
+                'is_visible'   => $isVisible,
+                'content'      => $isVisible ? $cnt : null,
             ];
         }
         $result['sections_list'] = $list;
