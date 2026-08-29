@@ -112,6 +112,26 @@ function columnMap(PDO $pdo, $table) {
     return $cols;
 }
 
+function ensureSectionMetaColumns(PDO $pdo) {
+    $cols = columnMap($pdo, 'sections');
+    if (!$cols) return;
+
+    $nameCol = $cols['section_name'] ?? $cols['name'] ?? null;
+    if (!isset($cols['display_name'])) {
+        $after = $nameCol ? " AFTER `{$nameCol}`" : '';
+        $pdo->exec("ALTER TABLE `sections` ADD COLUMN `display_name` VARCHAR(255) NULL{$after}");
+    }
+    if (!isset($cols['is_visible'])) {
+        $pdo->exec('ALTER TABLE `sections` ADD COLUMN `is_visible` TINYINT(1) NOT NULL DEFAULT 1');
+    }
+}
+
+function rowIsVisible(array $row) {
+    if (!array_key_exists('is_visible', $row)) return true;
+    $value = $row['is_visible'];
+    return $value === true || $value === 1 || $value === '1';
+}
+
 function loadSeedSections() {
     global $seedFile;
     if (!file_exists($seedFile)) return [];
@@ -201,10 +221,14 @@ function getPdoConnection($host, $name, $user, $pass) {
         $pdo->exec("CREATE TABLE `sections` (
             `id` INT AUTO_INCREMENT PRIMARY KEY,
             `section_name` VARCHAR(255) NOT NULL UNIQUE,
+            `display_name` VARCHAR(255) NULL,
+            `is_visible` TINYINT(1) NOT NULL DEFAULT 1,
             `content` LONGTEXT NOT NULL,
             `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
     }
+
+    ensureSectionMetaColumns($pdo);
 
     $cols = columnMap($pdo, 'sections');
     $nameCol = $cols['section_name'] ?? $cols['name'] ?? null;
@@ -236,7 +260,15 @@ function fetchSectionRows(PDO $pdo, $advisorId = null) {
     if (!$nameCol || !$contentCol) return [];
 
     $hasAdvisor = isset($cols['advisor_id']);
+    $hasDisplayName = isset($cols['display_name']);
+    $hasVisible = isset($cols['is_visible']);
     $sql = "SELECT `{$nameCol}` AS name, `{$contentCol}` AS content";
+    if ($hasDisplayName) {
+        $sql .= ', `display_name`';
+    }
+    if ($hasVisible) {
+        $sql .= ', `is_visible`';
+    }
     if ($hasAdvisor) {
         $sql .= ', `advisor_id`';
     }
@@ -284,24 +316,35 @@ function rowsToSections(array $rows) {
     $listIndex = [];
     $list = [];
     foreach ($rows as $row) {
+        if (!rowIsVisible($row)) {
+            continue;
+        }
+
         $name = canonicalSectionName($row['name'] ?? '');
         if ($name === '') continue;
         $cnt = decodeSectionContent($row['content'] ?? null);
+        $label = !empty($row['display_name']) ? $row['display_name'] : $name;
         if (!isset($sections[$name])) {
             $sections[$name] = $cnt;
             $listIndex[$name] = count($list);
-            $list[] = ['name' => $name, 'content' => $cnt];
+            $list[] = [
+                'name'         => $name,
+                'display_name' => $label,
+                'is_visible'   => true,
+                'content'      => $cnt,
+            ];
             continue;
         }
         if (sectionContentRank($cnt) > sectionContentRank($sections[$name])) {
             $sections[$name] = $cnt;
             $list[$listIndex[$name]]['content'] = $cnt;
+            $list[$listIndex[$name]]['display_name'] = $label;
         }
     }
     return [$sections, $list];
 }
 
-function upsertPublishedSection(PDO $pdo, $name, $content, $advisorId = null) {
+function upsertPublishedSection(PDO $pdo, $name, $content, $advisorId = null, $displayName = null, $isVisible = true) {
     $cols = columnMap($pdo, 'sections');
     $nameCol = $cols['section_name'] ?? $cols['name'] ?? null;
     $contentCol = $cols['content'] ?? null;
@@ -314,6 +357,9 @@ function upsertPublishedSection(PDO $pdo, $name, $content, $advisorId = null) {
     $hasAdvisor = isset($cols['advisor_id']);
     $hasPage = isset($cols['page_id']);
     $hasId = isset($cols['id']);
+    $hasDisplayName = isset($cols['display_name']);
+    $hasVisible = isset($cols['is_visible']);
+    $visibleValue = $isVisible ? 1 : 0;
 
     $updated = 0;
     if ($hasId) {
@@ -323,7 +369,18 @@ function upsertPublishedSection(PDO $pdo, $name, $content, $advisorId = null) {
         }
         $select .= ' FROM `sections`';
         $existing = $pdo->query($select)->fetchAll() ?: [];
-        $upd = $pdo->prepare("UPDATE `sections` SET `{$contentCol}` = ?, `{$nameCol}` = ? WHERE `id` = ?");
+
+        $setParts = ["`{$contentCol}` = ?", "`{$nameCol}` = ?"];
+        $setValues = [$json, $name];
+        if ($hasDisplayName) {
+            $setParts[] = '`display_name` = ?';
+            $setValues[] = $displayName ?: null;
+        }
+        if ($hasVisible) {
+            $setParts[] = '`is_visible` = ?';
+            $setValues[] = $visibleValue;
+        }
+        $upd = $pdo->prepare('UPDATE `sections` SET ' . implode(', ', $setParts) . ' WHERE `id` = ?');
 
         foreach ($existing as $row) {
             if (canonicalSectionName($row['name'] ?? '') !== $name) {
@@ -335,7 +392,7 @@ function upsertPublishedSection(PDO $pdo, $name, $content, $advisorId = null) {
                     continue;
                 }
             }
-            $upd->execute([$json, $name, $row['id']]);
+            $upd->execute(array_merge($setValues, [$row['id']]));
             $updated++;
         }
         if ($updated > 0) {
@@ -345,14 +402,33 @@ function upsertPublishedSection(PDO $pdo, $name, $content, $advisorId = null) {
         $find = $pdo->prepare("SELECT `{$nameCol}` FROM `sections` WHERE `{$nameCol}` = ? LIMIT 1");
         $find->execute([$name]);
         if ($find->fetchColumn()) {
-            $upd = $pdo->prepare("UPDATE `sections` SET `{$contentCol}` = ? WHERE `{$nameCol}` = ?");
-            $upd->execute([$json, $name]);
+            $setParts = ["`{$contentCol}` = ?"];
+            $setValues = [$json];
+            if ($hasDisplayName) {
+                $setParts[] = '`display_name` = ?';
+                $setValues[] = $displayName ?: null;
+            }
+            if ($hasVisible) {
+                $setParts[] = '`is_visible` = ?';
+                $setValues[] = $visibleValue;
+            }
+            $upd = $pdo->prepare('UPDATE `sections` SET ' . implode(', ', $setParts) . " WHERE `{$nameCol}` = ?");
+            $setValues[] = $name;
+            $upd->execute($setValues);
             return;
         }
     }
 
     $fields = [$nameCol, $contentCol];
     $values = [$name, $json];
+    if ($hasDisplayName) {
+        $fields[] = 'display_name';
+        $values[] = $displayName ?: null;
+    }
+    if ($hasVisible) {
+        $fields[] = 'is_visible';
+        $values[] = $visibleValue;
+    }
     if ($hasAdvisor && $advisorId !== null && $advisorId !== '') {
         $fields[] = 'advisor_id';
         $values[] = $advisorId;
@@ -434,8 +510,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 foreach ($input['sections'] as $newSec) {
                     $name = $newSec['name'] ?? $newSec['section_name'] ?? null;
                     $content = $newSec['content'] ?? null;
-                    if ($name && $content) {
-                        upsertPublishedSection($pdo, $name, $content, $advisorId);
+                    $displayName = $newSec['display_name'] ?? null;
+                    $isVisible = array_key_exists('is_visible', $newSec) ? (bool)$newSec['is_visible'] : true;
+                    if ($name && $content !== null && $content !== '') {
+                        upsertPublishedSection($pdo, $name, $content, $advisorId, $displayName, $isVisible);
                         $updatedSectionsCount++;
                     }
                 }
@@ -460,12 +538,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($existing['sections']) || !is_array($existing['sections'])) $existing['sections'] = [];
 
     if (isset($input['sections']) && is_array($input['sections'])) {
+        if (!isset($existing['sections_meta']) || !is_array($existing['sections_meta'])) {
+            $existing['sections_meta'] = [];
+        }
         foreach ($input['sections'] as $newSec) {
             $name = $newSec['name'] ?? $newSec['section_name'] ?? null;
             $content = $newSec['content'] ?? null;
-            if ($name && $content) {
+            $displayName = $newSec['display_name'] ?? null;
+            $isVisible = array_key_exists('is_visible', $newSec) ? (bool)$newSec['is_visible'] : true;
+            if ($name && $content !== null && $content !== '') {
                 $parsed = is_string($content) ? (json_decode($content, true) ?: $content) : $content;
-                $existing['sections'][canonicalSectionName($name)] = $parsed;
+                $canonical = canonicalSectionName($name);
+                if ($isVisible) {
+                    $existing['sections'][$canonical] = $parsed;
+                } else {
+                    unset($existing['sections'][$canonical]);
+                }
+                $existing['sections_meta'][$canonical] = [
+                    'display_name' => $displayName ?: $canonical,
+                    'is_visible'   => $isVisible,
+                ];
                 if (!$pdo) $updatedSectionsCount++;
             }
         }
@@ -528,12 +620,25 @@ if (empty($result['sections']) && file_exists($dataFile)) {
     if (!empty($fileData['logo_url'])) $result['logo_url'] = $fileData['logo_url'];
 
     if (isset($fileData['sections']) && is_array($fileData['sections'])) {
+        $meta = isset($fileData['sections_meta']) && is_array($fileData['sections_meta'])
+            ? $fileData['sections_meta']
+            : [];
         $list = [];
         foreach ($fileData['sections'] as $secName => $secContent) {
             $name = canonicalSectionName($secName);
+            $sectionMeta = $meta[$name] ?? [];
+            $isVisible = !array_key_exists('is_visible', $sectionMeta) || (bool)$sectionMeta['is_visible'];
+            if (!$isVisible) {
+                continue;
+            }
             $cnt = is_string($secContent) ? (json_decode($secContent, true) ?: $secContent) : $secContent;
             $result['sections'][$name] = $cnt;
-            $list[] = ['name' => $name, 'content' => $cnt];
+            $list[] = [
+                'name'         => $name,
+                'display_name' => $sectionMeta['display_name'] ?? $name,
+                'is_visible'   => true,
+                'content'      => $cnt,
+            ];
         }
         $result['sections_list'] = $list;
         $result['content_source'] = 'json_file';

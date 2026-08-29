@@ -29,33 +29,50 @@ const parseContent = (contentStr) => {
 
 const sectionKey = (name) => (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
-const buildSectionsMap = (payload) => {
+const buildSectionsPayload = (payload) => {
   const map = {};
+  const visibility = {};
 
   const list = payload?.sections_list;
   if (Array.isArray(list) && list.length) {
     list.forEach((sec) => {
       if (!sec?.name) return;
       const key = sectionKey(sec.name);
+      const visible = sec.is_visible !== false;
+      visibility[key] = visible;
+      if (!visible) return;
       if (map[key] == null) {
         map[key] = parseContent(sec.content);
       }
     });
-    return map;
+    return { map, visibility };
   }
 
   const keyed = payload?.sections;
   if (keyed && typeof keyed === 'object' && !Array.isArray(keyed)) {
     Object.keys(keyed).forEach((name) => {
-      map[sectionKey(name)] = parseContent(keyed[name]);
+      const key = sectionKey(name);
+      visibility[key] = true;
+      map[key] = parseContent(keyed[name]);
     });
   }
 
-  return map;
+  return { map, visibility };
+};
+
+const isVisibleSection = (visibility, keys) => {
+  const list = Array.isArray(keys) ? keys : [keys];
+  if (!visibility || !Object.keys(visibility).length) return true;
+
+  const explicit = list.filter((key) => Object.prototype.hasOwnProperty.call(visibility, key));
+  if (!explicit.length) return true;
+
+  return explicit.some((key) => visibility[key] !== false);
 };
 
 const Home = () => {
   const [sectionsMap, setSectionsMap] = useState({});
+  const [sectionVisibility, setSectionVisibility] = useState({});
   const [contentReady, setContentReady] = useState(false);
   const searchParams = new URLSearchParams(window.location.search);
   const targetSection = (searchParams.get('section') || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -101,7 +118,9 @@ const Home = () => {
     })
       .then(res => {
         if (res.data) {
-          setSectionsMap(buildSectionsMap(res.data));
+          const { map, visibility } = buildSectionsPayload(res.data);
+          setSectionsMap(map);
+          setSectionVisibility(visibility);
         }
       })
       .catch(err => {
@@ -225,19 +244,45 @@ const Home = () => {
     <div className="min-h-screen bg-white text-gray-800 selection:bg-[#C8102E] selection:text-white">
       <Header data={sectionsMap['header']} />
       <main>
-        <HeroSlider data={heroData} ready={heroReady} />
-        <WhatWeDo data={whatWeDoData} />
-        <AboutSection data={aboutData} />
-        <CompanyHistory data={companyHistoryData} />
-        <FeaturedServices data={featuredServicesData} />
-        <AnnualProgression data={annualProgressionData} />
-        <PortfolioSection data={portfolioData} />
-        <BranchesAndAppointment data={branchesData} />
-        <CounterStats data={counterStatsData} />
-        <TestimonialsCarousel data={testimonialsData} />
-        <LatestNews data={latestNewsData} />
-        <ClientLogos data={clientLogosData} />
-        <CtaBanner data={ctaBannerData} />
+        {isVisibleSection(sectionVisibility, ['heroslider', 'hero']) && (
+          <HeroSlider data={heroData} ready={heroReady} />
+        )}
+        {isVisibleSection(sectionVisibility, ['whatwedo', 'featurescarousel', 'features']) && (
+          <WhatWeDo data={whatWeDoData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['aboutsection', 'about', 'aboutus']) && (
+          <AboutSection data={aboutData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['companyhistory', 'history', 'ourcompanyhistory']) && (
+          <CompanyHistory data={companyHistoryData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['featuredservices', 'services']) && (
+          <FeaturedServices data={featuredServicesData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['annualprogression', 'progression', 'annual']) && (
+          <AnnualProgression data={annualProgressionData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['portfoliosection', 'portfolio']) && (
+          <PortfolioSection data={portfolioData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['branchesandappointment', 'branches', 'appointment']) && (
+          <BranchesAndAppointment data={branchesData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['counterstats', 'stats']) && (
+          <CounterStats data={counterStatsData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['testimonialscarousel', 'testimonials']) && (
+          <TestimonialsCarousel data={testimonialsData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['latestnews', 'news']) && (
+          <LatestNews data={latestNewsData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['clientlogos']) && (
+          <ClientLogos data={clientLogosData} />
+        )}
+        {isVisibleSection(sectionVisibility, ['ctabanner', 'cta']) && (
+          <CtaBanner data={ctaBannerData} />
+        )}
       </main>
       <Footer data={sectionsMap['footer']} />
     </div>
