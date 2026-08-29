@@ -62,12 +62,16 @@ const buildSectionsPayload = (payload) => {
 
 const isVisibleSection = (visibility, keys) => {
   const list = Array.isArray(keys) ? keys : [keys];
-  if (!visibility || !Object.keys(visibility).length) return true;
+  const hasVisibilityData = visibility && Object.keys(visibility).length > 0;
+  if (!hasVisibilityData) return true;
 
   const explicit = list.filter((key) => Object.prototype.hasOwnProperty.call(visibility, key));
-  if (!explicit.length) return true;
+  if (explicit.length) {
+    return explicit.some((key) => visibility[key] !== false);
+  }
 
-  return explicit.some((key) => visibility[key] !== false);
+  // Section absent from API payload after visibility data loaded → hidden
+  return false;
 };
 
 const Home = () => {
