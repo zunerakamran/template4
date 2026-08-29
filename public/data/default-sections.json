@@ -86,16 +86,16 @@
     ]
   },
   "Featured Services": {
-    "eyebrow": "FEATURED SERVICES",
+    "subheading": "FEATURED SERVICES",
     "heading": "We help to get Solutions!",
-    "subheading": "Provide users with appropriate view and access permissions to requests, problems, changes, contracts, assets, solutions",
-    "items": [
-      { "icon": "chart-pie", "title": "Strategy & Planning", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "slug": "strategy-planning" },
-      { "icon": "tasks", "title": "Program Manager", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "slug": "program-manager" },
-      { "icon": "landmark", "title": "Tax Management", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "slug": "tax-management" },
-      { "icon": "coins", "title": "Investment Policy", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "slug": "investment-policy" },
-      { "icon": "holding", "title": "Financial Advices", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "slug": "financial-advices" },
-      { "icon": "seedling", "title": "Business Growth Plan", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "slug": "business-growth-plan" }
+    "text": "Provide users with appropriate view and access permissions to requests, problems, changes, contracts, assets, solutions",
+    "boxes": [
+      { "icon": "chart-pie", "heading": "Strategy & Planning", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "button_text": "Read more", "button_url": "#service-strategy-planning" },
+      { "icon": "tasks", "heading": "Program Manager", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "button_text": "Read more", "button_url": "#service-program-manager" },
+      { "icon": "landmark", "heading": "Tax Management", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "button_text": "Read more", "button_url": "#service-tax-management" },
+      { "icon": "coins", "heading": "Investment Policy", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "button_text": "Read more", "button_url": "#service-investment-policy" },
+      { "icon": "holding", "heading": "Financial Advices", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "button_text": "Read more", "button_url": "#service-financial-advices" },
+      { "icon": "seedling", "heading": "Business Growth Plan", "text": "Collaborate Consulting exists to find the place where being seeming disparate interests meet.", "button_text": "Read more", "button_url": "#service-business-growth-plan" }
     ]
   },
   "Annual Progression": {

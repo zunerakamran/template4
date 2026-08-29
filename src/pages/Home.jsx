@@ -67,6 +67,8 @@ const Home = () => {
   const isAboutPreview = targetSection === 'aboutsection' || targetSection === 'about' || targetSection === 'aboutus' || targetSection.includes('about');
   const companyHistoryData = sectionsMap['companyhistory'] || sectionsMap['history'] || sectionsMap['ourcompanyhistory'];
   const isHistoryPreview = targetSection === 'companyhistory' || targetSection === 'history' || targetSection.includes('history') || targetSection.includes('companyhistory');
+  const featuredServicesData = sectionsMap['featuredservices'] || sectionsMap['services'];
+  const isFeaturedServicesPreview = targetSection === 'featuredservices' || targetSection === 'services' || targetSection.includes('featuredservices');
 
   useEffect(() => {
     // ── Skip API fetch in iframe preview mode ─────────────────────────────────
@@ -117,6 +119,11 @@ const Home = () => {
             next.history = merged;
             next.ourcompanyhistory = merged;
           }
+          if (key.includes('featuredservices') || key === 'services') {
+            const merged = { ...(prev.featuredservices || prev.services || {}), ...content };
+            next.featuredservices = merged;
+            next.services = merged;
+          }
           return next;
         });
       }
@@ -144,7 +151,7 @@ const Home = () => {
         { isWhatWeDoPreview && <WhatWeDo data={whatWeDoData} /> }
         { isAboutPreview && <AboutSection data={aboutData} /> }
         { isHistoryPreview && <CompanyHistory data={companyHistoryData} /> }
-        { (targetSection.includes('service') || targetSection.includes('featuredservices')) && <FeaturedServices data={sectionsMap['featuredservices'] || sectionsMap['services']} /> }
+        { isFeaturedServicesPreview && <FeaturedServices data={featuredServicesData} /> }
         { (targetSection.includes('annual') || targetSection.includes('progression')) && <AnnualProgression data={sectionsMap['annualprogression'] || sectionsMap['progression']} /> }
         { targetSection.includes('portfolio') && <PortfolioSection data={sectionsMap['portfoliosection'] || sectionsMap['portfolio']} /> }
         { (targetSection.includes('branch') || targetSection.includes('appointment')) && <BranchesAndAppointment data={sectionsMap['branchesandappointment'] || sectionsMap['branches']} /> }
@@ -165,7 +172,7 @@ const Home = () => {
         <WhatWeDo data={whatWeDoData} />
         <AboutSection data={aboutData} />
         <CompanyHistory data={companyHistoryData} />
-        <FeaturedServices data={sectionsMap['featuredservices'] || sectionsMap['services']} />
+        <FeaturedServices data={featuredServicesData} />
         <AnnualProgression data={sectionsMap['annualprogression'] || sectionsMap['progression']} />
         <PortfolioSection data={sectionsMap['portfoliosection'] || sectionsMap['portfolio']} />
         <BranchesAndAppointment data={sectionsMap['branchesandappointment'] || sectionsMap['branches']} />
