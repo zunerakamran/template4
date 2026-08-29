@@ -77,6 +77,8 @@ const Home = () => {
   const isBranchesPreview = targetSection === 'branchesandappointment' || targetSection.includes('branch') || targetSection.includes('appointment');
   const counterStatsData = sectionsMap['counterstats'] || sectionsMap['stats'];
   const isCounterStatsPreview = targetSection === 'counterstats' || targetSection === 'stats' || targetSection.includes('counter') || targetSection.includes('stat');
+  const testimonialsData = sectionsMap['testimonialscarousel'] || sectionsMap['testimonials'];
+  const isTestimonialsPreview = targetSection === 'testimonialscarousel' || targetSection === 'testimonials' || targetSection.includes('testimonial');
 
   useEffect(() => {
     // ── Skip API fetch in iframe preview mode ─────────────────────────────────
@@ -154,6 +156,11 @@ const Home = () => {
             next.counterstats = merged;
             next.stats = merged;
           }
+          if (key.includes('testimonial')) {
+            const merged = { ...(prev.testimonialscarousel || prev.testimonials || {}), ...content };
+            next.testimonialscarousel = merged;
+            next.testimonials = merged;
+          }
           return next;
         });
       }
@@ -186,7 +193,7 @@ const Home = () => {
         { isPortfolioPreview && <PortfolioSection data={portfolioData} /> }
         { isBranchesPreview && <BranchesAndAppointment data={branchesData} /> }
         { isCounterStatsPreview && <CounterStats data={counterStatsData} /> }
-        { (targetSection.includes('testimonial') || targetSection.includes('testimonials')) && <TestimonialsCarousel data={sectionsMap['testimonialscarousel'] || sectionsMap['testimonials']} /> }
+        { isTestimonialsPreview && <TestimonialsCarousel data={testimonialsData} /> }
         { (targetSection.includes('news') || targetSection.includes('latest')) && <LatestNews data={sectionsMap['latestnews'] || sectionsMap['news']} /> }
         { targetSection.includes('logo') && <ClientLogos data={sectionsMap['clientlogos']} /> }
         { (targetSection.includes('cta') || targetSection.includes('banner')) && <CtaBanner data={sectionsMap['ctabanner'] || sectionsMap['cta']} /> }
@@ -207,7 +214,7 @@ const Home = () => {
         <PortfolioSection data={portfolioData} />
         <BranchesAndAppointment data={branchesData} />
         <CounterStats data={counterStatsData} />
-        <TestimonialsCarousel data={sectionsMap['testimonialscarousel'] || sectionsMap['testimonials']} />
+        <TestimonialsCarousel data={testimonialsData} />
         <LatestNews data={sectionsMap['latestnews'] || sectionsMap['news']} />
         <ClientLogos data={sectionsMap['clientlogos']} />
         <CtaBanner data={sectionsMap['ctabanner'] || sectionsMap['cta']} />
